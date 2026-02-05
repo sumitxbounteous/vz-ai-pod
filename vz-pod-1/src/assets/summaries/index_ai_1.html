@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Redline Analysis - Verizon Wireless Agreement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+            <style>
+        .section-title {
+            color: #374151;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        </style>
+
+
+    <style>
+        .addition {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .deletion {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            text-decoration: line-through;
+        }
+
+        .modification {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .favorable {
+            background-color: #d4edda;
+        }
+
+        .neutral {
+            background-color: #fff3cd;
+        }
+
+        .unfavorable {
+            background-color: #f8d7da;
+        }
+
+        .impact-high {
+            border-left: 4px solid #dc3545;
+        }
+
+        .impact-medium {
+            border-left: 4px solid #ffc107;
+        }
+
+        .impact-low {
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+
+   
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex gap-6 text-sm font-medium">
+               <a href="#dashboard" class="text-red-600 hover:text-red-800 transition">
+  Dashboard
+</a>
+
+<a href="#material-changes" class="text-red-600 hover:text-red-800 transition">
+  Material Changes
+</a>
+
+<a href="#tracked-changes" class="text-red-600 hover:text-red-800 transition">
+  Tracked Changes
+</a>
+
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+
+       
+
+        <!-- 1. CHANGE SUMMARY DASHBOARD -->
+       <section id="dashboard" class="mb-12">
+            <section id="dashboard" class="mb-12">
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    
+    <!-- Header -->
+    <div class="bg-white px-6 py-4 border-b border-red-200">
+      <h2 class="text-2xl font-bold text-red-600">
+        1. Change Summary Dashboard
+      </h2>
+    </div>
+
+                </div>
+
+                <div class="p-6">
+                    <!-- Summary Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                            <div class="text-3xl font-bold text-blue-700">9</div>
+                            <div class="text-sm text-gray-600 mt-1">Total Changes</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                            <div class="text-3xl font-bold text-green-700">2</div>
+                            <div class="text-sm text-gray-600 mt-1">Favorable</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                            <div class="text-3xl font-bold text-yellow-700">4</div>
+                            <div class="text-sm text-gray-600 mt-1">Neutral</div>
+                        </div>
+                        <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                            <div class="text-3xl font-bold text-red-700">3</div>
+                            <div class="text-sm text-gray-600 mt-1">Unfavorable</div>
+                        </div>
+                    </div>
+
+                    <!-- Impact Analysis -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Impact Level Distribution</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="border rounded-lg p-4 impact-high">
+                                <div class="font-semibold text-red-700 mb-2">High Impact: 3</div>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>• Service Interruption Credits</li>
+                                    <li>• Arbitration Settlement Threshold</li>
+                                    <li>• Disclaimer of Warranties (New)</li>
+                                </ul>
+                            </div>
+                            <div class="border rounded-lg p-4 impact-medium">
+                                <div class="font-semibold text-yellow-700 mb-2">Medium Impact: 4</div>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>• Service Name Change</li>
+                                    <li>• Maine Privacy Rights Order</li>
+                                    <li>• Internet Access Section Formatting</li>
+                                    <li>• Mass Arbitration Changes</li>
+                                </ul>
+                            </div>
+                            <div class="border rounded-lg p-4 impact-low">
+                                <div class="font-semibold text-blue-700 mb-2">Low Impact: 2</div>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>• Formatting Changes</li>
+                                    <li>• Assignment Rights Clarification</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Changes by Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Changes by Section</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Section</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Changes</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Impact</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Classification</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">My Service</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Service name updated</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Medium</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Neutral</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Maine Privacy Rights
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Added security measures clause</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Medium</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Favorable</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Internet Access</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Added network management link</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Low</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Favorable</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Service Credits</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Extended timeframes</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">High</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Unfavorable</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Warranties</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">New disclaimer section added</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">High</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Unfavorable</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Dispute Resolution</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Settlement threshold modified</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">High</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Unfavorable</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Mass Arbitration</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Case selection updated</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Medium</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Neutral</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">About Agreement</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">Assignment rights added</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Medium</span>
+                                        </td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Neutral</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. MATERIAL CHANGES ANALYSIS -->
+        <section id="material-changes" class="mb-12">
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    
+    <!-- Header -->
+    <div class="bg-white px-6 py-4 border-b border-red-200">
+      <h2 class="text-2xl font-bold text-red-600">
+        2. Material Changes Analysis
+      </h2>
+    </div>
+
+
+                <div class="p-6 space-y-6">
+
+                    <!-- Change 1 -->
+                    <div class="border-l-4 border-yellow-200 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #1: Service Name Update</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">NEUTRAL</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: My Service</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 deletion">
+                                <div class="text-xs font-semibold text-red-700 mb-2">ORIGINAL TEXT</div>
+                                <p class="text-sm text-gray-800">"Your HMA <span class="font-semibold">Services</span>
+                                    includes..."</p>
+                            </div>
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">PROPOSED TEXT</div>
+                                <p class="text-sm text-gray-800">"Your HMA <span class="font-semibold">BlueLink
+                                        Services</span> includes..."</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700">This change updates the generic reference "Services" to the
+                                specific branded service name "BlueLink Services". This is a branding clarification that
+                                doesn't materially affect customer rights or obligations. It provides more specificity
+                                about the actual service being provided.</p>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>Accept:</strong> This is a minor branding
+                                clarification that improves clarity without affecting customer rights. No material
+                                impact on contract terms.</p>
+                        </div>
+                    </div>
+
+                    <!-- Change 2 -->
+                    <div class="border-l-4 border-green-800 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #2: Maine Privacy Rights Enhancement</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800">FAVORABLE</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: Maine Broadband
+                                Customer Privacy Rights</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">NEW TEXT ADDED</div>
+                                <p class="text-sm text-gray-800">"The Maine law also requires us to <span
+                                        class="font-semibold">take reasonable measures to protect your customer personal
+                                        information. We describe this in our privacy policy.</span>"</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700">This addition explicitly acknowledges Verizon's obligation
+                                under Maine law to implement reasonable security measures to protect customer personal
+                                information. This is a <strong>positive change for customers</strong> as it:</p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li>Creates an explicit contractual commitment to data security</li>
+                                <li>Provides customers with additional legal recourse for data security failures</li>
+                                <li>References the privacy policy for implementation details</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>Accept:</strong> This change strengthens customer
+                                privacy protections and is favorable. It adds transparency regarding Verizon's security
+                                obligations under Maine law.</p>
+                        </div>
+                    </div>
+
+                    <!-- Change 3 -->
+                    <div class="border-l-4 border-green-800 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #3: Network Management Transparency</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800">FAVORABLE</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: Internet Access</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">NEW TEXT ADDED</div>
+                                <p class="text-sm text-gray-800">"<span class="font-semibold">For information about our
+                                        network management practices for our broadband internet access services visit
+                                        verizon.com/about/our-company/open-internet.</span>"</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700">This addition provides customers with a direct link to
+                                information about network management practices. This enhances transparency regarding:
+                            </p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li>How Verizon manages network traffic</li>
+                                <li>Potential throttling or prioritization policies</li>
+                                <li>Net neutrality compliance</li>
+                                <li>Customer expectations for service performance</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>Accept:</strong> This improves transparency and
+                                helps customers understand how their service may be managed. This is a favorable
+                                addition aligned with open internet principles.</p>
+                        </div>
+                    </div>
+
+                    <!-- Change 4 -->
+                    <div class="border-l-4 border-red-600 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #4: Service Credit Requirements Tightened
+                            </h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-red-200 text-red-800">UNFAVORABLE</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: What are my rights for
+                                dropped calls or interrupted Service?</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 deletion">
+                                <div class="text-xs font-semibold text-red-700 mb-2">ORIGINAL TEXT</div>
+                                <p class="text-sm text-gray-800">"If you lose Service in your Coverage Area for more
+                                    than <span class="font-semibold">4 hours</span> in a row and we're at fault, call us
+                                    within <span class="font-semibold">80 days</span> and we'll give you a credit for
+                                    the time lost."</p>
+                            </div>
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">PROPOSED TEXT</div>
+                                <p class="text-sm text-gray-800">"If you lose Service in your Coverage Area for more
+                                    than <span class="font-semibold bg-red-200">24 hours</span> in a row and we're at
+                                    fault, call us within <span class="font-semibold bg-red-200">180 days</span> and
+                                    we'll give you a credit for the time lost."</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700"><strong>⚠️ SIGNIFICANT UNFAVORABLE CHANGE</strong></p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li><strong>Outage Threshold Increased 6x:</strong> From 4 hours to 24 hours before
+                                    credit eligibility</li>
+                                <li><strong>Reporting Window Extended:</strong> From 80 days to 180 days (appears
+                                    favorable but see below)</li>
+                                <li><strong>Reduced Customer Protection:</strong> Customers can now experience up to 24
+                                    hours of service interruption without compensation</li>
+                                <li><strong>Net Effect:</strong> Makes it significantly harder to qualify for service
+                                    credits despite longer reporting window</li>
+                            </ul>
+                            <p class="text-sm text-red-700 font-semibold mt-3">Financial Impact: Customer could lose a
+                                full day of paid service without compensation (previously only 4 hours).</p>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>⛔ REJECT or NEGOTIATE:</strong> This significantly
+                                reduces customer protections. Consider:</p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li>Request retention of 4-hour threshold</li>
+                                <li>If increase necessary, negotiate to 12 hours maximum</li>
+                                <li>Request proactive notification for outages exceeding 6 hours</li>
+                                <li>Consider automatic credits rather than requiring customer to call</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Change 5 -->
+                    <div class="border-l-4 border-red-600 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #5: New Disclaimer of Warranties Section
+                            </h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-red-200 text-red-800">UNFAVORABLE</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: DISCLAIMER OF
+                                WARRANTIES (New Section)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">NEW SECTION ADDED</div>
+                                <p class="text-sm text-gray-800 font-semibold">"We make no representations or
+                                    warranties, express or implied, including, to the extent permitted by applicable
+                                    law, any implied warranty of merchantability or fitness for a particular purpose,
+                                    about your Service, your wireless device, or any applications you access through
+                                    your wireless device. We do not warrant that your wireless device will work
+                                    perfectly, that all features will work, that your device will not need occasional
+                                    upgrades or modifications, or that it will not be negatively affected by
+                                    network–related modifications, upgrades or similar activity."</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700"><strong>⚠️ MAJOR UNFAVORABLE ADDITION</strong></p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li><strong>Eliminates Implied Warranties:</strong> Specifically disclaims
+                                    merchantability and fitness for particular purpose</li>
+                                <li><strong>No Performance Guarantees:</strong> Explicitly states device may not "work
+                                    perfectly" or that "all features will work"</li>
+                                <li><strong>Shifts Risk to Customer:</strong> Customer bears all risk of service/device
+                                    performance issues</li>
+                                <li><strong>Broad Scope:</strong> Covers service, device, AND third-party applications
+                                </li>
+                                <li><strong>Network Changes:</strong> No warranty against negative effects from
+                                    Verizon's own network modifications</li>
+                            </ul>
+                            <p class="text-sm text-red-700 font-semibold mt-3">Legal Impact: Significantly limits
+                                customer's ability to seek remedies for defective service or devices.</p>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>⛔ STRONGLY OBJECT:</strong> This is an entirely new
+                                section that substantially weakens customer protections. Recommendations:</p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li><strong>Request Removal:</strong> This section wasn't in the original agreement</li>
+                                <li><strong>If Unavoidable:</strong> Add carve-outs for gross negligence or willful
+                                    misconduct</li>
+                                <li><strong>Limit Scope:</strong> Exclude disclaimers related to Verizon's own network
+                                    modifications</li>
+                                <li><strong>Add Minimum Standards:</strong> Require service to meet "commercially
+                                    reasonable standards"</li>
+                                <li><strong>Legal Review:</strong> Consult legal counsel on enforceability in your
+                                    jurisdiction</li>
+                            </ul>
+                            <div class="mt-3 p-3 bg-red-100 border border-red-300 rounded">
+                                <p class="text-sm text-red-800"><strong>⚠️ Note:</strong> State laws may limit
+                                    enforceability of such broad warranty disclaimers, particularly for consumer
+                                    contracts.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change 6 -->
+                    <div class="border-l-4 border-red-600 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #6: Arbitration Settlement Threshold
+                                Modified</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-red-200 text-red-800">UNFAVORABLE</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: Dispute Resolution -
+                                Paragraph (5)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 deletion">
+                                <div class="text-xs font-semibold text-red-700 mb-2">ORIGINAL TEXT</div>
+                                <p class="text-sm text-gray-800">"...OR IF WE DON'T MAKE YOU AN OFFER, AND THE
+                                    ARBITRATOR AWARDS YOU ANY AMOUNT OF MONEY BUT LESS THAN <span
+                                        class="font-semibold">$1,000</span>, THEN WE AGREE TO PAY YOU $5,000 INSTEAD..."
+                                </p>
+                            </div>
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">PROPOSED TEXT</div>
+                                <p class="text-sm text-gray-800">"...OR IF WE DON'T MAKE YOU AN OFFER, AND THE
+                                    ARBITRATOR AWARDS YOU ANY AMOUNT OF MONEY BUT LESS THAN <span
+                                        class="font-semibold bg-red-200">$5,000</span>, THEN WE AGREE TO PAY YOU $5,000
+                                    INSTEAD..."</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700"><strong>⚠️ UNFAVORABLE CHANGE - Reduces Customer
+                                    Protection</strong></p>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Original Version Protection:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>Award range $1 - $999 → Customer gets $5,000</li>
+                                    <li>Incentivized Verizon to make fair settlement offers</li>
+                                    <li>Protected small claims with significant penalty</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Proposed Version Impact:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li><strong>Eliminates $5,000 guarantee for awards $1,000 - $4,999</strong></li>
+                                    <li>Customer now gets only actual award (not $5,000 bonus) for this range</li>
+                                    <li>Reduces Verizon's incentive to settle small claims fairly</li>
+                                    <li>Makes arbitration less attractive for mid-range claims</li>
+                                </ul>
+                            </div>
+
+                            <p class="text-sm text-red-700 font-semibold mt-3">Financial Impact: Customers with valid
+                                claims between $1,000-$4,999 lose the $5,000 guarantee, potentially losing thousands in
+                                recovery.</p>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>⛔ REJECT:</strong> This change significantly
+                                weakens customer protections in arbitration. Options:</p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li><strong>Retain Original Language:</strong> Keep $1,000 threshold for $5,000
+                                    guarantee</li>
+                                <li><strong>Compromise Position:</strong> Split the difference at $2,500 threshold</li>
+                                <li><strong>Alternative Protection:</strong> Add automatic attorneys' fees for awards
+                                    under $5,000</li>
+                                <li><strong>Escalating Scale:</strong> Graduated payment (e.g., 2x award for claims
+                                    under $2,500)</li>
+                            </ul>
+                            <div class="mt-3 p-3 bg-yellow-100 border border-yellow-300 rounded">
+                                <p class="text-sm text-gray-800"><strong>Strategic Note:</strong> This provision
+                                    incentivizes early settlement. Weakening it may increase arbitration costs for both
+                                    parties.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change 7 -->
+                    <div class="border-l-4 border-yellow-200 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #7: Mass Arbitration Case Selection</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">NEUTRAL</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: Dispute Resolution -
+                                Paragraph (6)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 deletion">
+                                <div class="text-xs font-semibold text-red-700 mb-2">ORIGINAL TEXT</div>
+                                <p class="text-sm text-gray-800">"IN THE SECOND STAGE, 80 ARBITRATIONS WILL PROCEED, AND
+                                    COUNSEL FOR THE VERIZON CUSTOMERS AND COUNSEL FOR VERIZON SHALL EACH SELECT <span
+                                        class="font-semibold">10 CASES</span> TO PROCEED..."</p>
+                            </div>
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">PROPOSED TEXT</div>
+                                <p class="text-sm text-gray-800">"IN THE SECOND STAGE, 80 ARBITRATIONS WILL PROCEED, AND
+                                    COUNSEL FOR THE VERIZON CUSTOMERS AND COUNSEL FOR VERIZON SHALL EACH SELECT <span
+                                        class="font-semibold bg-yellow-200">40 CASES</span> TO PROCEED..."</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700">This change affects the mass arbitration "bellwether"
+                                process for handling 50+ similar claims:</p>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Mathematical Correction:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>Original stated "80 arbitrations" but only allocated 20 cases (10 + 10)</li>
+                                    <li>New version corrects this to 80 cases total (40 + 40)</li>
+                                    <li>Aligns selection with stated total</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Practical Impact:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>Both sides get equal selection rights (40 each)</li>
+                                    <li>More cases tested in second bellwether round</li>
+                                    <li>Better data for settlement negotiations</li>
+                                    <li>Neutral impact - applies equally to both parties</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>Accept:</strong> This appears to be a correction to
+                                align case selection with the stated total. The change maintains balance between parties
+                                and may actually benefit customers by:</p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li>Allowing more customer cases to be heard in bellwether proceedings</li>
+                                <li>Providing better statistical data for settlement leverage</li>
+                                <li>Maintaining equal selection rights</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Change 8 -->
+                    <div class="border-l-4 border-yellow-200 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #8: Assignment Rights Clarification</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">NEUTRAL</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: About this
+                                Agreement</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 mb-4">
+                            <div class="bg-white rounded p-4 addition">
+                                <div class="text-xs font-semibold text-green-700 mb-2">NEW TEXT ADDED</div>
+                                <p class="text-sm text-gray-800">"<span class="font-semibold">You cannot assign this
+                                        Agreement or any of your rights or duties under it without our permission.
+                                        However, we may assign this Agreement or any debt you owe us without notifying
+                                        you.</span>"</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700">This addition explicitly addresses assignment rights:</p>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Customer Restrictions:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>Customer cannot transfer/assign agreement without Verizon approval</li>
+                                    <li>Standard provision in consumer service contracts</li>
+                                    <li>Protects Verizon from unauthorized service transfers</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Verizon Rights:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>Verizon can assign agreement without notice</li>
+                                    <li>Allows for corporate restructuring, mergers, debt sales</li>
+                                    <li>Typical in commercial contracts</li>
+                                    <li>Customer continues with same service terms regardless</li>
+                                </ul>
+                            </div>
+
+                            <p class="text-sm text-gray-700 mt-3">This is standard boilerplate language common in
+                                telecommunications agreements. While asymmetric, it reflects typical business practice
+                                and doesn't materially change customer rights.</p>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>Accept with Awareness:</strong> This is standard
+                                industry language. Consider requesting:</p>
+                            <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">
+                                <li>Notice requirement when Verizon assigns to third parties (not affiliates)</li>
+                                <li>Right to cancel within 30 days of assignment to non-affiliate</li>
+                                <li>Assurance that terms won't change upon assignment</li>
+                            </ul>
+                            <p class="text-sm text-gray-600 mt-2 italic">Note: Without this clause, assignment rights
+                                would default to state law, which often allows reasonable restrictions anyway.</p>
+                        </div>
+                    </div>
+
+                    <!-- Change 9 -->
+                    <div class="border-l-4 border-yellow-200 bg-white rounded-r-lg p-6">
+
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Change #9: Formatting and Emphasis Changes</h3>
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">NEUTRAL</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="text-xs font-semibold text-gray-600 uppercase">Section: Multiple
+                                Sections</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 mb-4">
+                            <div class="bg-white rounded p-4">
+                                <div class="text-xs font-semibold text-gray-700 mb-2">CHANGES IDENTIFIED</div>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-2">
+                                    <li><strong>List Formatting:</strong> Changed from &lt;ol&gt; to &lt;ul&gt; in
+                                        introduction</li>
+                                    <li><strong>Bold Formatting:</strong> Added bold emphasis to entire "Internet
+                                        Access" section</li>
+                                    <li><strong>Bold Formatting:</strong> Added bold to dispute resolution paragraphs
+                                        (3), (8), and (9)</li>
+                                    <li><strong>Bold Formatting:</strong> Added bold to "About this Agreement" section
+                                        paragraphs</li>
+                                    <li><strong>Text Correction:</strong> "onsult" corrected to "consult" in contact
+                                        information</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded p-4 mb-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">IMPACT ANALYSIS</div>
+                            <p class="text-sm text-gray-700">These are primarily presentational changes:</p>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Positive Aspects:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>Bold formatting draws attention to important arbitration clauses</li>
+                                    <li>May satisfy disclosure requirements in some jurisdictions</li>
+                                    <li>Typo correction improves professionalism</li>
+                                    <li>Improves readability</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-3">
+                                <p class="text-sm font-semibold text-gray-800 mb-2">Neutral Aspects:</p>
+                                <ul class="list-disc ml-5 text-sm text-gray-700 space-y-1">
+                                    <li>No substantive text changes</li>
+                                    <li>Formatting changes don't alter legal meaning</li>
+                                    <li>Standard practice to emphasize key provisions</li>
+                                </ul>
+                            </div>
+
+                            <p class="text-sm text-gray-700 mt-3"><strong>Note:</strong> Bold formatting of arbitration
+                                clauses may indicate Verizon's desire to strengthen enforceability by showing
+                                conspicuous notice was provided.</p>
+                        </div>
+
+                        <div class="bg-white rounded p-4">
+                            <div class="text-xs font-semibold text-gray-700 mb-2">RECOMMENDATION</div>
+                            <p class="text-sm text-gray-700"><strong>Accept:</strong> These are non-substantive
+                                formatting improvements. The bold emphasis actually benefits customers by making
+                                important terms more visible. No action required.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. TRACKED CHANGES DOCUMENT -->
+        <section id="tracked-changes" class="mb-12">
+            <div class="bg-white px-6 py-4 border-b border-red-200">
+    <h2 class="text-2xl font-bold text-red-600">
+        3. Detailed Tracked Changes
+    </h2>
+</div>
+
+
+
+                <div class="p-6">
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                        <p class="text-sm text-gray-700">
+                            <strong>Reading Guide:</strong>
+                            <span class="bg-red-100 px-2 py-1 ml-2">Red strikethrough</span> = Deleted text |
+                            <span class="bg-green-100 px-2 py-1 ml-2">Green highlight</span> = Added text |
+                            <span class="bg-yellow-100 px-2 py-1 ml-2">Yellow highlight</span> = Modified text
+                        </p>
+                    </div>
+
+                    <!-- Introduction Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">Introduction</h3>
+                        <div class="prose max-w-none text-sm">
+                            <p><strong>Customer Agreement for Verizon Wireless Internet Data Service (Hyundai)</strong>
+                            </p>
+                            <p>Thank you for choosing Verizon Wireless. In this Customer Agreement ("Agreement"), you'll
+                                find important information about your Verizon Wireless Internet Data service (the
+                                "Service"), offered to you through Hyundai Motor America ("HMA") Wi-Fi + Streaming which
+                                are more fully described in the Connected Services Agreement Terms and Conditions...</p>
+                            <p>The information contained in this Agreement addresses, without limitation:</p>
+                            <ul class="list-disc ml-6">
+                                <li>Our ability to make changes to your Service or this Agreement's terms.</li>
+                                <li>Our liability if things don't work as planned and how any disputes between us must
+                                    be resolved in arbitration or small claims court.</li>
+                            </ul>
+                            <p class="text-xs text-gray-500 italic mt-2">Note: Changed from numbered list (&lt;ol&gt;)
+                                to bulleted list (&lt;ul&gt;)</p>
+                        </div>
+                    </div>
+
+                    <!-- My Service Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">My Service</h3>
+                        <div class="prose max-w-none text-sm">
+                            <p>Your HMA <span class="bg-red-100 line-through">Services</span> <span
+                                    class="bg-green-100">BlueLink Services</span> includes your monthly allowances and
+                                features, where you can use them (your "Coverage Area"), and their monthly charges...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Maine Privacy Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">Maine Broadband Customer Privacy Rights</h3>
+                        <div class="prose max-w-none text-sm">
+                            <p>The Maine Broadband Internet Access Service Customer Privacy Act, effective on July 1,
+                                2020, gives you additional privacy rights when we are your broadband Internet access
+                                service provider...</p>
+
+                            <p class="bg-green-100 border-l-4 border-green-500 pl-4 py-2 my-3">
+                                <strong>[NEW PARAGRAPH ADDED]</strong><br>
+                                The Maine law also requires us to take reasonable measures to protect your customer
+                                personal information. We describe this in our privacy policy.
+                            </p>
+
+                            <p>We will not use, disclose, sell, or permit access to your broadband customer personal
+                                information except for purposes allowed under the Maine law or with your affirmative
+                                consent...</p>
+                        </div>
+                    </div>
+
+                    <!-- Internet Access Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">Internet Access</h3>
+                        <div class="prose max-w-none text-sm">
+                            <p><span class="bg-yellow-100">[ENTIRE SECTION NOW IN BOLD]</span></p>
+                            <p><strong>If you download or use applications, services or software provided by third
+                                    parties (including voice applications), 911 or E911, or other calling functionality,
+                                    may work differently than services offered by us, or may not work at all...</strong>
+                            </p>
+
+                            <p class="bg-green-100 border-l-4 border-green-500 pl-4 py-2 my-3">
+                                <strong>[NEW PARAGRAPH ADDED]</strong><br>
+                                For information about our network management practices for our broadband internet access
+                                services visit verizon.com/about/our-company/open-internet.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Service Credits Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">What are my rights for dropped calls or
+                            interrupted Service?</h3>
+                        <div class="prose max-w-none text-sm">
+                            <p>If you lose Service in your Coverage Area for more than <span
+                                    class="bg-red-100 line-through">4 hours</span> <span class="bg-green-100">24
+                                    hours</span> in a row and we're at fault, call us within <span
+                                    class="bg-red-100 line-through">80 days</span> <span class="bg-green-100">180
+                                    days</span> and we'll give you a credit for the time lost. Please be aware that
+                                these are your only rights for dropped calls or interrupted Service.</p>
+
+                            <div class="bg-red-50 border-l-4 border-red-500 pl-4 py-2 my-3">
+                                <strong>⚠️ Impact:</strong> Significantly reduces customer protection - outage must now
+                                last 6x longer (24 hours vs 4 hours) to qualify for credit.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warranties Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">DISCLAIMER OF WARRANTIES</h3>
+                        <div class="prose max-w-none text-sm">
+                            <div class="bg-green-100 border-l-4 border-green-500 pl-4 py-2">
+                                <strong>[NEW SECTION - NOT IN ORIGINAL]</strong><br><br>
+                                <strong>We make no representations or warranties, express or implied, including, to the
+                                    extent permitted by applicable law, any implied warranty of merchantability or
+                                    fitness for a particular purpose, about your Service, your wireless device, or any
+                                    applications you access through your wireless device. We do not warrant that your
+                                    wireless device will work perfectly, that all features will work, that your device
+                                    will not need occasional upgrades or modifications, or that it will not be
+                                    negatively affected by network–related modifications, upgrades or similar
+                                    activity.</strong>
+                            </div>
+
+                            <div class="bg-red-50 border-l-4 border-red-500 pl-4 py-2 my-3">
+                                <strong>⚠️ Impact:</strong> Entirely new section that disclaims all warranties and
+                                significantly limits customer remedies for service/device issues.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dispute Resolution Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">HOW DO I RESOLVE DISPUTES WITH VERIZON?</h3>
+                        <div class="prose max-w-none text-sm">
+
+                            <p class="mb-4"><strong>Paragraph (3):</strong> <span class="bg-yellow-100">[NOW IN
+                                    BOLD]</span></p>
+                            <p class="mb-4 pl-4 border-l-2 border-gray-300"><strong>THIS AGREEMENT DOESN'T ALLOW CLASS
+                                    OR COLLECTIVE ARBITRATIONS... ANY QUESTION REGARDING THE ENFORCEABILITY UNDER
+                                    APPLICABLE LAW OR INTERPRETATION OF THIS PARAGRAPH SHALL BE DECIDED BY A COURT AND
+                                    NOT THE ARBITRATOR.</strong></p>
+
+                            <div class="my-6 p-4 bg-yellow-50 border-l-4 border-yellow-500">
+                                <p class="font-semibold mb-2">Paragraph (5) - Settlement Offer Provision:</p>
+                                <p>...OR IF WE DON'T MAKE YOU AN OFFER, AND THE ARBITRATOR AWARDS YOU ANY AMOUNT OF
+                                    MONEY BUT LESS THAN <span class="bg-red-100 line-through">$1,000</span> <span
+                                        class="bg-green-100">$5,000</span>, THEN WE AGREE TO PAY YOU $5,000 INSTEAD OF
+                                    THE AMOUNT AWARDED...</p>
+
+                                <div class="bg-red-50 border-l-4 border-red-500 pl-4 py-2 my-3">
+                                    <strong>⚠️ Impact:</strong> Raises threshold from $1,000 to $5,000, eliminating the
+                                    $5,000 guarantee for awards between $1,000-$4,999.
+                                </div>
+                            </div>
+
+                            <div class="my-6 p-4 bg-yellow-50 border-l-4 border-yellow-500">
+                                <p class="font-semibold mb-2">Paragraph (6) - Mass Arbitration Bellwether:</p>
+                                <p>...IN THE SECOND STAGE, 80 ARBITRATIONS WILL PROCEED, AND COUNSEL FOR THE VERIZON
+                                    CUSTOMERS AND COUNSEL FOR VERIZON SHALL EACH SELECT <span
+                                        class="bg-red-100 line-through">10 CASES</span> <span class="bg-green-100">40
+                                        CASES</span> TO PROCEED IN ARBITRATION...</p>
+
+                                <div class="bg-blue-50 border-l-4 border-blue-500 pl-4 py-2 my-3">
+                                    <strong>Note:</strong> Corrects inconsistency - original stated 80 arbitrations but
+                                    only allocated 20 cases.
+                                </div>
+                            </div>
+
+                            <p class="mb-4"><strong>Paragraph (8):</strong> <span class="bg-yellow-100">[NOW IN
+                                    BOLD]</span></p>
+                            <p class="mb-4 pl-4 border-l-2 border-gray-300"><strong>IF A COURT, PURSUANT TO PARAGRAPH 3,
+                                    DETERMINES THAT THE PROHIBITION ON CLASS ARBITRATIONS OR THE LIMITS ON THE
+                                    ARBITRATOR'S AUTHORITY CANNOT BE ENFORCED...</strong></p>
+
+                            <p class="mb-4"><strong>Paragraph (9):</strong> <span class="bg-yellow-100">[NOW IN
+                                    BOLD]</span></p>
+                            <p class="mb-4 pl-4 border-l-2 border-gray-300"><strong>IF FOR ANY REASON A CLAIM PROCEEDS
+                                    IN COURT RATHER THAN THROUGH ARBITRATION... YOU AND VERIZON UNCONDITIONALLY WAIVE
+                                    ANY RIGHT TO TRIAL BY JURY...</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- About Agreement Section -->
+                    <div class="mb-8 border rounded-lg p-6 bg-gray-50">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">About this Agreement</h3>
+                        <div class="prose max-w-none text-sm">
+
+                            <div class="bg-green-100 border-l-4 border-green-500 pl-4 py-2 mb-4">
+                                <strong>[NEW PARAGRAPH ADDED]</strong><br>
+                                If either you or we don't enforce our rights under this Agreement in one instance, that
+                                doesn't mean you or we won't or can't enforce those rights in any other instance. You
+                                cannot assign this Agreement or any of your rights or duties under it without our
+                                permission. However, we may assign this Agreement or any debt you owe us without
+                                notifying you.
+                            </div>
+
+                            <p><span class="bg-yellow-100">[FOLLOWING PARAGRAPHS NOW IN BOLD]</span></p>
+
+                            <p class="mb-3"><strong>If we send notices to you, they will be considered received
+                                    immediately if we send them to any email you've given us, or after three days if we
+                                    mail them to the most current address we have for you. If you need to send notices
+                                    to us, please <span class="bg-red-100 line-through">onsult</span> <span
+                                        class="bg-green-100">consult</span> verizon.com/contactus for information on how
+                                    to reach us.</strong></p>
+
+                            <p class="mb-3"><strong>If any part of this Agreement, including anything regarding the
+                                    arbitration process (except for part 8 of the dispute resolution section above), is
+                                    ruled invalid, that part may be severed from this Agreement and the rest
+                                    enforced.</strong></p>
+
+                            <p class="mb-3"><strong>This Agreement and the documents it incorporates form the entire
+                                    Agreement between us. Any other documents, or anything said by any Sales or Customer
+                                    Service Representatives will not form any part of the Agreement between us, and you
+                                    have no other rights regarding Service or this Agreement.</strong></p>
+
+                            <p>This Agreement isn't for the benefit of any third party except our parent companies,
+                                affiliates, subsidiaries, agents, and predecessors and successors in interest...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    
+    </div>
+</body>
+
+</html>
