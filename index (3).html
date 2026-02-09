@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Review System - Hyundai 2026 MSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+        }
+        
+        .strikethrough-red { text-decoration: line-through; text-decoration-color: #ED1C24; text-decoration-thickness: 2px; }
+        .hidden { display: none !important; }
+        
+        /* Highlight border for active editing */
+        .editing-highlight {
+            border: 2px solid #ED1C24 !important;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(237, 28, 36, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        /* Base State: Needs Review (The Proposed Draft) */
+        .review-needed {
+            text-decoration: underline;
+            text-decoration-style: dashed;
+            text-decoration-color: #F59E0B; /* Amber for caution */
+            text-underline-offset: 4px;
+            background-color: #FFFBEB;
+            padding: 2px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* State: AI Accepted (Green) */
+        .ai-accepted {
+            text-decoration: none;
+            background-color: #DCFCE7; /* Green-100 */
+            color: #166534; /* Green-800 */
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #86EFAC;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* State: AI Declined / Kept Proposal (Red/Neutral) */
+        .ai-declined {
+            text-decoration: none;
+            background-color: #FEE2E2; /* Red-100 */
+            color: #991B1B; /* Red-800 */
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #FECACA;
+        }
+
+        /* Card Fading Effect */
+        .card-resolved {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.8);
+            transform: scale(0.98);
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages { max-height: calc(100vh - 520px); overflow-y: auto; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+        
+        /* Layout Grid */
+        #main-grid {
+            display: grid;
+            height: 100vh;
+            grid-template-columns: 1fr 450px;
+            transition: grid-template-columns 0.3s ease;
+        }
+        #main-grid.sidebar-hidden {
+            grid-template-columns: 1fr 0px;
+        }
+
+        /* Verizon Styling */
+        .verizon-card {
+            background-color: white;
+            border-radius: 6px;
+            border: 2px solid #E5E7EB;
+            transition: all 0.3s ease;
+        }
+
+        .verizon-card:hover {
+            border-color: #D1D5DB;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Risk-based card styling */
+        .verizon-card.risk-high-card { border: 2px solid #FECACA; background-color: #FFFBFB; }
+        .verizon-card.risk-medium-card { border: 2px solid #FCD34D; background-color: #FFFEF0; }
+        .verizon-card.risk-low-card { border: 2px solid #93C5FD; background-color: #F0F9FF; }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .risk-high { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+        .risk-medium { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+        .risk-low { background-color: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .status-pending { background-color: #FEF3C7; color: #92400E; }
+        .status-accepted { background-color: #DCFCE7; color: #166534; }
+        .status-rejected { background-color: #FEE2E2; color: #991B1B; }
+
+        /* AI Assistant UI */
+        .ai-thought-box {
+            background-color: #F3F4F6;
+            border-left: 3px solid #ED1C24;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .ai-input-area { padding: 1rem; background-color: white; }
+    </style>
+</head>
+<body class="bg-gray-50 overflow-hidden" onload="initializeDocument()">
+    
+    <div id="toast-notification" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3">
+        <div id="toast-icon" class="bg-green-500 rounded-full p-1"></div>
+        <span id="toast-message" class="font-medium text-sm">Action Successful</span>
+    </div>
+
+    <div id="main-grid">
+        
+        <div class="flex flex-col overflow-hidden border-r-2 border-gray-200 bg-white">
+            <header class="bg-white border-b-2 border-gray-200 px-6 py-3 shadow-sm z-20 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Hyundai Motor America</div>
+                            <h1 class="text-xl font-bold text-red-600 leading-none">2026 Master Service Agreement 
+                                <span class="px-1 py-0.6 bg-gray-200 border border-gray-400 rounded-md text-xs font-semibold text-gray-700">Draft</span> 
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button class="px-5 py-2 bg-gray-900 text-white text-xs font-bold rounded hover:bg-gray-800 transition-colors">Submit</button>
+                        <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-100 rounded border border-gray-200">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16M4 20h16M16 12l4-4m0 0l-4-4m4 4H8"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div id="document-panel" class="flex-1 overflow-y-auto">
+                <div class="sticky top-0 bg-white/95 backdrop-blur z-10 px-8 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <span class="text-xs font-bold text-gray-900 tracking-tight">Version 2.0 (January 2026)</span>
+                    <button id="global-edit-btn" onclick="toggleGlobalEdit()" class="text-xs font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded transition-all">Edit Document</button>
+                </div>
+
+                <div id="contract-content" class="px-12 py-10 max-w-4xl mx-auto">
+                    <section id="doc-wrapper-intro" class="pb-10 mb-10 border-b border-gray-200 p-4 transition-all duration-300">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-tight">1. Parties & Effective Date
+                            <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
+                        </h2>
+                        <p class="text-sm text-gray-700 leading-relaxed mb-2">Your HMA BlueLink Services includes your monthly allowances and features, where you can use them (your "Coverage Area"), and their monthly charges. Together, your data plan, features you use, and any optional Verizon services you select are your "Service." Your billing and shipping addresses, and your primary place of use that you have provided to HMA must be within the areas served by the network Verizon owns and operates.By using the Service you are agreeing to every provision of this Agreement and any applicable terms and conditions for your Service whether or not you have read them. This Agreement also applies to all lines on your account and anyone who uses your Service.</p>
+                        <p class="text-sm text-gray-700 "></p>This Master Service Agreement ("Agreement") is effective as of January 1, 2026 ("Effective Date"), and is entered into by and between:</p>
+                        <h1 class="text-xl font-bold text-gray-900 mb-4"></h1>
+
+                        <ul class="text-sm text-gray-600 space-y-2 ml-4">
+                            <li><strong>Provider:</strong> Hyundai Motor America, Inc., with principal offices at 10550 Sorrento Valley Road, San Diego, CA 92121</li>
+                            <li><strong>Customer:</strong> Premium Fleet Solutions Inc., with principal offices at 1200 Enterprise Drive, Charlotte, NC 28205</li>
+                        </ul>
+                    </section>
+
+                    <section id="doc-wrapper-1" class="pb-10 mb-10 border-b border-gray-200 p-4 transition-all duration-300">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-tight">2. Service Level Agreement (SLA)
+                            <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p class="text-xs font-bold text-blue-700 mb-1">SERVICE AVAILABILITY TARGET:</p>
+                                <p class="text-sm text-gray-700">Service credits shall be issued for interruptions exceeding <span id="doc-change-1" class="review-needed" onclick="scrollToCard(1)">24 consecutive hours.</span> Provider commits to 99.5% uptime for all critical services, measured monthly.We will notify you or ask for your permission, as appropriate and as required by law, if we plan to use your information for additional purposes. It is your responsibility to let the people who connect devices through your in-vehicle hotspot or other Premium Data Services powered by Verizon that we will collect, use and share information about their device and use of the Service as described in our Privacy Policy. You may have additional rights provided by privacy laws in your state, for more information go to the state section of the privacy policy. If you are a California resident, you can view our California privacy notice at verizon.com/californiaprivacy.</p>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-xs font-bold text-gray-600">CREDIT SCHEDULE:</p>
+                                <table class="w-full text-xs text-gray-600 border border-gray-300">
+                                    <tr class="bg-gray-50 border-b border-gray-300">
+                                        <td class="p-2 font-bold">Uptime %</td>
+                                        <td class="p-2 font-bold">Credit %</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-300">
+                                        <td class="p-2">99.0% - 99.4%</td>
+                                        <td class="p-2">10% of Monthly Fee</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-payment" class="pb-10 mb-10 border-b border-gray-200 p-4 transition-all duration-300">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-tight">3. Payment Terms & Fees
+                            <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
+                        </h2>
+                        <div class="space-y-3">
+                            <div id="doc-section-3-content" class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <p class="text-sm text-gray-700"><strong>Annual Base Fee:</strong> $485,000 USD, payable quarterly at $121,250</p>
+                                <p class="text-sm text-gray-700 mt-2"><strong>Payment Due:</strong> <span id="doc-change-3" class="review-needed" onclick="scrollToCard(3)">Net 60 days from invoice date</span></p>
+                                <p class="text-sm text-gray-700 mt-2"><strong>Late Payment Interest:</strong> 1.5% per month or maximum legal rate.The Maine Broadband Internet Access Service Customer Privacy Act, effective on July 1, 2020, gives you additional privacy rights when we are your broadband Internet access service provider. The Maine law gives you the right to control certain ways that we use or share information we have about you and requires that we provide you with a notice of your rights and our obligations under this law. We do this in this section.The Maine law also requires us to take reasonable measures to protect your customer personal information. We describe this in our privacy policy.We will not use, disclose, sell, or permit access to your broadband customer personal information except for purposes allowed under the Maine law or with your affirmative consent. We may ask you for this consent when we interact with you. For example, we may ask to use your broadband customer personal information to market additional services to you when you call us or come into our stores.The Maine law also provides you with a right to opt-out of any use or sharing of data that is not customer personal information under the law. At this time, we do not collect information about you as a broadband customer that is not customer personal information. If we begin collecting such information in the future, we will give you the right to opt out of its use and sharing.We will not refuse to provide you with broadband service, charge you a penalty, or offer you a discount based on whether you agree that we can use or share your broadband customer personal information.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-2" class="pb-10 mb-10 border-b border-gray-200 p-4 transition-all duration-300">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-tight">4. Limitation of Liability
+                            <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
+                        </h2>
+                        <div class="space-y-3">
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Hyundai Motor America's total aggregate liability for any and all claims arising out of this agreement shall be limited as follows:
+                            </p>
+                            <div id="doc-section-4-content" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-gray-700 space-y-2">
+                                <p><strong>For Direct Damages:</strong> Limited to fees paid in the 12 months preceding the claim</p>
+                                <p><strong>For Data Breaches:</strong> <span id="doc-change-2" class="review-needed" onclick="scrollToCard(2)">Uncapped for data breaches</span></p>
+                                <p><strong>Excluded Damages:</strong> Indirect, incidental, punitive, or consequential damages are excluded entirely.Wireless devices, including in-vehicle hotspots, use radio transmissions, so unfortunately you can't get Service if your device isn't in range of a transmission signal. And please be aware that even within your Coverage Area, many things can affect the availability and quality of your Service, including network capacity, your device, terrain, buildings, foliage and weather.If you lose Service in your Coverage Area for more than 24 hours in a row and we're at fault, call us within 180 days and we'll give you a credit for the time lost. Please be aware that these are your only rights for dropped calls or interrupted Service.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-conf" class="pb-10 mb-10 border-b border-gray-200 p-4 transition-all duration-300">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-tight">5. Confidentiality & Data Protection
+                            <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
+                        </h2>
+                        <div class="space-y-2">
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Both parties agree to <span id="doc-change-6" class="review-needed" onclick="scrollToCard(6)">maintain confidentiality for 1 year post-agreement</span> of all Confidential Information disclosed during the term.
+                            </p>
+                            <div id="doc-section-5-content" class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                <p class="text-xs font-bold text-purple-700 mb-2">GDPR & CCPA COMPLIANCE:</p>
+                                <p class="text-sm text-gray-700"><span id="doc-change-5" class="review-needed" onclick="scrollToCard(5)">No specific data protection clause included.</span> Subprocessors require written approval.As described in the HMA Connected Services Agreement Terms and Conditions, available at: https://owners.hyundaiusa.com/us/en/terms-and-conditions, all billing and payment will be conducted by HMA as part of your subscription and data plan purchased through HMA.We can, without notice, limit, suspend or end your Service or any agreement with you for any good cause, including, but not limited to: (1) if you: (a) breach this agreement or violate our prohibited usage policies; (b) resell your Service; (c) use your Service for any illegal purpose, including use that violates trade and economic sanctions and prohibitions promulgated by any US governmental agency; (d) install, deploy or use any regeneration equipment or similar mechanism (for example, a repeater) to originate, amplify, enhance, retransmit or regenerate an RF signal without our permission; (e) steal from or lie to us; or (2) if you, or any user of your device or any line of service on your account, or any account manager on your account: (a) threaten, harass, or use vulgar and/or inappropriate language toward our representatives; (b) interfere with our operations; (c) "spam," or engage in other abusive messaging or calling; (d) modify your device from its manufacturer’s specifications; or (e) use your Service in a way that negatively affects our network or other customers. We can also temporarily limit your Service for any operational or governmental reason.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-term" class="pb-10 mb-10 border-b border-gray-200 p-4 transition-all duration-300">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3 uppercase tracking-tight">6. Term & Termination
+                            <button class="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
+                        </h2>
+                        <div class="space-y-2">
+                            <p class="text-sm text-gray-600"><strong>Initial Term:</strong> 3 years from the Effective Date</p>
+                            <p class="text-sm text-gray-600"><strong>Renewal:</strong> Automatically renews for successive 1-year terms unless either party provides 90 days' written notice of non-renewal</p>
+                            <div id="doc-section-6-content" class="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-3">
+                                <p class="text-xs font-bold text-orange-700 mb-1">EARLY TERMINATION:</p>
+                                <p class="text-sm text-gray-700">Either party may terminate for material breach if not cured within 30 days of written notice. Customer may terminate for convenience with <span id="doc-change-4" class="review-needed" onclick="scrollToCard(4)">$50,000 exit fee</span>.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <div id="ai-studio-panel" class="flex flex-col bg-white overflow-hidden border-l border-gray-200">
+            <div class="p-5 flex-shrink-0 border-b border-gray-200">
+                <div class="flex items-center gap-2 mb-4">
+                    
+                    <h2 class="text-lg font-bold text-red-600">AI Studio</h2>
+                </div>
+                
+                <div class="flex gap-1 p-1 bg-gray-100 rounded-lg mb-4">
+                    <button onclick="switchAITab('redline')" id="redlineTab" class="flex-1 px-3 py-1.5 text-xs font-bold rounded-md bg-white shadow-sm text-gray-900 transition-all">Redline review (6)</button>
+                    <button onclick="switchAITab('assistant')" id="assistantTab" class="flex-1 px-3 py-1.5 text-xs font-semibold text-gray-500 transition-all">Ask AI Assistant</button>
+                </div>
+
+                <div id="status-container" class="flex gap-2 mb-0 transition-opacity duration-300">
+                    <span class="status-badge status-pending"><span id="cnt-pending">6</span> Pending</span>
+                    <span class="status-badge status-accepted"><span id="cnt-accepted">0</span> Accepted</span>
+                    <span class="status-badge status-rejected"><span id="cnt-rejected">0</span> Rejected</span>
+                </div>
+            </div>
+
+            <div id="redlineContent" class="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50/50">
+                
+                <div id="card-1" class="verizon-card risk-high-card p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-400 uppercase">Section 2</span><span class="text-xs font-bold text-gray-900">SLA Trigger</span></div>
+                        <span class="risk-badge risk-high">High risk</span>
+                    </div>
+                    <div class="mb-3 p-3 bg-red-50/50 rounded border border-red-100/50">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Original Contract</div>
+                        <p class="text-xs text-gray-500 strikethrough-red">14 consecutive hours.</p>
+                    </div>
+                    <div class="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Proposed Draft</div>
+                        <p class="text-xs text-gray-900 font-medium">24 consecutive hours</p>
+                    </div>
+                    <div class="ai-box rounded border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5"><div class="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center text-white text-[8px]">✨</div><span class="text-[10px] font-bold text-gray-900 uppercase">AI Recommendation</span></div>
+                            <button onclick="editAI(1)" class="text-[10px] font-bold text-gray-600 hover:text-gray-900 underline">Edit</button>
+                        </div>
+                        <div id="ai-text-display-1" class="text-xs text-gray-700 italic mb-3">"4 consecutive hours with automated escalation."</div>
+                        <div id="ai-edit-container-1" class="hidden mb-3">
+                            <textarea id="ai-edit-area-1" class="w-full text-xs p-2 border border-gray-300 rounded outline-none mb-2" rows="2"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button onclick="cancelAIEdit(1)" class="text-[10px] font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+                                <button onclick="saveAIEdit(1)" class="px-2 py-1 text-[10px] font-bold bg-gray-900 text-white rounded hover:bg-gray-800">Update</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button onclick="declineSuggestion(1)" class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-[10px] font-bold rounded hover:bg-gray-100">Decline</button>
+                            <button onclick="applySuggestion(1)" class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded hover:bg-gray-800">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div id="card-3" class="verizon-card risk-low-card p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-400 uppercase">Section 3</span><span class="text-xs font-bold text-gray-900">Payment Terms</span></div>
+                        <span class="risk-badge risk-low">Low risk</span>
+                    </div>
+                    <div class="mb-3 p-3 bg-blue-50/50 rounded border border-blue-100/50">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Original Contract</div>
+                        <p class="text-xs text-gray-500 strikethrough-red">Net 30 days from invoice date</p>
+                    </div>
+                    <div class="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Proposed Draft</div>
+                        <p class="text-xs text-gray-900 font-medium">Net 60 days from invoice date</p>
+                    </div>
+                    <div class="ai-box rounded border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5"><div class="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center text-white text-[8px]">✨</div><span class="text-[10px] font-bold text-gray-900 uppercase">AI Recommendation</span></div>
+                            <button onclick="editAI(3)" class="text-[10px] font-bold text-gray-600 hover:text-gray-900 underline">Edit</button>
+                        </div>
+                        <div id="ai-text-display-3" class="text-xs text-gray-700 italic mb-3">"Net 30 days from invoice date."</div>
+                        <div id="ai-edit-container-3" class="hidden mb-3">
+                            <textarea id="ai-edit-area-3" class="w-full text-xs p-2 border border-gray-300 rounded outline-none mb-2" rows="2"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button onclick="cancelAIEdit(3)" class="text-[10px] font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+                                <button onclick="saveAIEdit(3)" class="px-2 py-1 text-[10px] font-bold bg-gray-900 text-white rounded hover:bg-gray-800">Update</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button onclick="declineSuggestion(3)" class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-[10px] font-bold rounded hover:bg-gray-100">Decline</button>
+                            <button onclick="applySuggestion(3)" class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded hover:bg-gray-800">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+<div id="card-2" class="verizon-card risk-medium-card p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-400 uppercase">Section 4</span><span class="text-xs font-bold text-gray-900">Liability Cap</span></div>
+                        <span class="risk-badge risk-medium">Medium risk</span>
+                    </div>
+                    <div class="mb-3 p-3 bg-red-50/50 rounded border border-red-100/50">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Original Contract</div>
+                        <p class="text-xs text-gray-500 strikethrough-red">Capped for data breaches</p>
+                    </div>
+                    <div class="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Proposed Draft</div>
+                        <p class="text-xs text-gray-900 font-medium">Uncapped for data breaches</p>
+                    </div>
+                    <div class="ai-box rounded border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5"><div class="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center text-white text-[8px]">✨</div><span class="text-[10px] font-bold text-gray-900 uppercase">AI Recommendation</span></div>
+                            <button onclick="editAI(2)" class="text-[10px] font-bold text-gray-600 hover:text-gray-900 underline">Edit</button>
+                        </div>
+                        <div id="ai-text-display-2" class="text-xs text-gray-700 italic mb-3">"Cap liability at 3x Annual Fees (approx $1.4M)."</div>
+                        <div id="ai-edit-container-2" class="hidden mb-3">
+                            <textarea id="ai-edit-area-2" class="w-full text-xs p-2 border border-gray-300 rounded outline-none mb-2" rows="2"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button onclick="cancelAIEdit(2)" class="text-[10px] font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+                                <button onclick="saveAIEdit(2)" class="px-2 py-1 text-[10px] font-bold bg-gray-900 text-white rounded hover:bg-gray-800">Update</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button onclick="declineSuggestion(2)" class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-[10px] font-bold rounded hover:bg-gray-100">Decline</button>
+                            <button onclick="applySuggestion(2)" class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded hover:bg-gray-800">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div id="card-5" class="verizon-card risk-low-card p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-400 uppercase">Section 5</span><span class="text-xs font-bold text-gray-900">Data Protection</span></div>
+                        <span class="risk-badge risk-low">Low risk</span>
+                    </div>
+                    <div class="mb-3 p-3 bg-blue-50/50 rounded border border-blue-100/50">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Original Contract</div>
+                        <p class="text-xs text-gray-500 strikethrough-red">No GDPR specific clause</p>
+                    </div>
+                    <div class="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Proposed Draft</div>
+                        <p class="text-xs text-gray-900 font-medium">No specific data protection clause included</p>
+                    </div>
+                    <div class="ai-box rounded border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5"><div class="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center text-white text-[8px]">✨</div><span class="text-[10px] font-bold text-gray-900 uppercase">AI Recommendation</span></div>
+                            <button onclick="editAI(5)" class="text-[10px] font-bold text-gray-600 hover:text-gray-900 underline">Edit</button>
+                        </div>
+                        <div id="ai-text-display-5" class="text-xs text-gray-700 italic mb-3">"Provider shall comply with GDPR, CCPA, and equivalent data protection regulations."</div>
+                        <div id="ai-edit-container-5" class="hidden mb-3">
+                            <textarea id="ai-edit-area-5" class="w-full text-xs p-2 border border-gray-300 rounded outline-none mb-2" rows="2"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button onclick="cancelAIEdit(5)" class="text-[10px] font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+                                <button onclick="saveAIEdit(5)" class="px-2 py-1 text-[10px] font-bold bg-gray-900 text-white rounded hover:bg-gray-800">Update</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button onclick="declineSuggestion(5)" class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-[10px] font-bold rounded hover:bg-gray-100">Decline</button>
+                            <button onclick="applySuggestion(5)" class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded hover:bg-gray-800">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="card-6" class="verizon-card risk-low-card p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-400 uppercase">Section 5</span><span class="text-xs font-bold text-gray-900">Confidentiality</span></div>
+                        <span class="risk-badge risk-low">Low risk</span>
+                    </div>
+                    <div class="mb-3 p-3 bg-blue-50/50 rounded border border-blue-100/50">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Original Contract</div>
+                        <p class="text-xs text-gray-500 strikethrough-red">maintain confidentiality for 4 year post-agreement</p>
+                    </div>
+                    <div class="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Proposed Draft</div>
+                        <p class="text-xs text-gray-900 font-medium">maintain confidentiality for 1 year post-agreement</p>
+                    </div>
+                    <div class="ai-box rounded border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5"><div class="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center text-white text-[8px]">✨</div><span class="text-[10px] font-bold text-gray-900 uppercase">AI Recommendation</span></div>
+                            <button onclick="editAI(6)" class="text-[10px] font-bold text-gray-600 hover:text-gray-900 underline">Edit</button>
+                        </div>
+                        <div id="ai-text-display-6" class="text-xs text-gray-700 italic mb-3">"maintain confidentiality for 3 years post-agreement"</div>
+                        <div id="ai-edit-container-6" class="hidden mb-3">
+                            <textarea id="ai-edit-area-6" class="w-full text-xs p-2 border border-gray-300 rounded outline-none mb-2" rows="2"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button onclick="cancelAIEdit(6)" class="text-[10px] font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+                                <button onclick="saveAIEdit(6)" class="px-2 py-1 text-[10px] font-bold bg-gray-900 text-white rounded hover:bg-gray-800">Update</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button onclick="declineSuggestion(6)" class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-[10px] font-bold rounded hover:bg-gray-100">Decline</button>
+                            <button onclick="applySuggestion(6)" class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded hover:bg-gray-800">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="card-4" class="verizon-card risk-medium-card p-4 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-gray-400 uppercase">Section 6</span><span class="text-xs font-bold text-gray-900">Exit Fees</span></div>
+                        <span class="risk-badge risk-medium">Medium risk</span>
+                    </div>
+                    <div class="mb-3 p-3 bg-yellow-50/50 rounded border border-yellow-100/50">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Original Contract</div>
+                        <p class="text-xs text-gray-500 strikethrough-red">$45,00 exit fee</p>
+                    </div>
+                    <div class="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
+                        <div class="text-[10px] font-bold text-gray-400 mb-1 uppercase">Proposed Draft</div>
+                        <p class="text-xs text-gray-900 font-medium">$50,000 exit fee</p>
+                    </div>
+                    <div class="ai-box rounded border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5"><div class="w-4 h-4 bg-gray-700 rounded-full flex items-center justify-center text-white text-[8px]">✨</div><span class="text-[10px] font-bold text-gray-900 uppercase">AI Recommendation</span></div>
+                            <button onclick="editAI(4)" class="text-[10px] font-bold text-gray-600 hover:text-gray-900 underline">Edit</button>
+                        </div>
+                        <div id="ai-text-display-4" class="text-xs text-gray-700 italic mb-3">"Tiered exit fee: 100% Yr1, 75% Yr2, 50% Yr3."</div>
+                        <div id="ai-edit-container-4" class="hidden mb-3">
+                            <textarea id="ai-edit-area-4" class="w-full text-xs p-2 border border-gray-300 rounded outline-none mb-2" rows="2"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button onclick="cancelAIEdit(4)" class="text-[10px] font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+                                <button onclick="saveAIEdit(4)" class="px-2 py-1 text-[10px] font-bold bg-gray-900 text-white rounded hover:bg-gray-800">Update</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button onclick="declineSuggestion(4)" class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-[10px] font-bold rounded hover:bg-gray-100">Decline</button>
+                            <button onclick="applySuggestion(4)" class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded hover:bg-gray-800">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="assistantContent" class="hidden flex flex-col flex-1 bg-white overflow-hidden">
+                <div class="flex-1 overflow-y-auto p-5 space-y-5">
+                    <div class="text-lg font-bold text-red-600">AI Assistant</div>
+                    
+                    <div class="flex justify-end">
+                        <div class="bg-gray-900 text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] text-xs">Create a proposal for a 2026 contract for Hermes.</div>
+                    </div>
+                    <div class="ai-thought-box">
+                        <p class="text-[10px] font-bold text-gray-700 mb-1">Thought for 16 seconds</p>
+                        <p class="text-sm text-gray-700">I'll analyze the contract data and provide AI-powered insights.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="text-sm text-gray-900 font-bold">Approach</div>
+                        <ul class="space-y-2 text-xs text-gray-700 ml-4 list-disc">
+                            <li>Engaging mobile solutions with competitive bundle value</li>
+                            <li>Focus on enterprise-grade reliability and support</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="ai-input-area flex gap-2 flex-shrink-0 border-t border-gray-200">
+                    <input type="text" id="chatInput" placeholder="Ask Verizon AI Studio..." class="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-full text-xs focus:ring-2 focus:ring-gray-900 outline-none">
+                    <button onclick="sendMessage()" class="p-3 rounded-full bg-gray-900 text-white hover:bg-gray-800 transition flex-shrink-0"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONTRACT DATA OBJECT
+        const contractData = {
+            1: {
+                id: "doc-change-1",
+                proposed_draft: "24 consecutive hours.",
+                ai_suggestion: "4 consecutive hours with automated escalation."
+            },
+            2: {
+                id: "doc-change-2",
+                proposed_draft: "Uncapped for data breaches",
+                ai_suggestion: "Cap liability at 3x Annual Fees (approx $1.4M)."
+            },
+            3: {
+                id: "doc-change-3",
+                proposed_draft: "Net 60 days from invoice date",
+                ai_suggestion: "Net 30 days from invoice date."
+            },
+            4: {
+                id: "doc-change-4",
+                proposed_draft: "$50,000 exit fee",
+                ai_suggestion: "Tiered exit fee: 100% Yr1, 75% Yr2, 50% Yr3."
+            },
+            5: {
+                id: "doc-change-5",
+                proposed_draft: "No specific data protection clause included.",
+                ai_suggestion: "Provider shall comply with GDPR, CCPA, and equivalent data protection regulations."
+            },
+            6: {
+                id: "doc-change-6",
+                proposed_draft: "maintain confidentiality for 1 year post-agreement",
+                ai_suggestion: "maintain confidentiality for 3 years post-agreement"
+            }
+        };
+
+        function scrollToCard(id) {
+            switchAITab('redline');
+            const card = document.getElementById(`card-${id}`);
+            const redlinePanel = document.getElementById('redlineContent');
+            if (card && redlinePanel) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('editing-highlight');
+                setTimeout(() => { card.classList.remove('editing-highlight'); }, 1500);
+            }
+        }
+
+        let counts = { pending: 6, accepted: 0, rejected: 0 };
+
+        function initializeDocument() { updateStatusDisplay(); }
+
+        function updateStatusDisplay() {
+            document.getElementById('cnt-pending').textContent = counts.pending;
+            document.getElementById('cnt-accepted').textContent = counts.accepted;
+            document.getElementById('cnt-rejected').textContent = counts.rejected;
+        }
+
+        function editAI(id) {
+            document.getElementById(`card-${id}`).classList.add('editing-highlight');
+            highlightWrapper(id);
+            document.getElementById(`ai-text-display-${id}`).classList.add('hidden');
+            document.getElementById(`ai-edit-container-${id}`).classList.remove('hidden');
+            const current = contractData[id].ai_suggestion;
+            document.getElementById(`ai-edit-area-${id}`).value = current;
+        }
+
+        function cancelAIEdit(id) {
+            document.getElementById(`card-${id}`).classList.remove('editing-highlight');
+            document.getElementById(`ai-text-display-${id}`).classList.remove('hidden');
+            document.getElementById(`ai-edit-container-${id}`).classList.add('hidden');
+        }
+
+        function saveAIEdit(id) {
+            const val = document.getElementById(`ai-edit-area-${id}`).value;
+            contractData[id].ai_suggestion = val;
+            document.getElementById(`ai-text-display-${id}`).innerText = `"${val}"`;
+            cancelAIEdit(id);
+            showToast("AI Recommendation Updated", "success");
+        }
+
+        function applySuggestion(id) {
+            const data = contractData[id];
+            const element = document.getElementById(data.id);
+            if (element) {
+                element.textContent = data.ai_suggestion; 
+                element.className = "ai-accepted";
+                element.onclick = null;
+            }
+            counts.pending--;
+            counts.accepted++;
+            updateStatusDisplay();
+            const card = document.getElementById(`card-${id}`);
+            card.classList.add('card-resolved');
+            highlightWrapper(id);
+            showToast("AI Change Accepted", "success");
+        }
+
+        function declineSuggestion(id) {
+            const data = contractData[id];
+            const element = document.getElementById(data.id);
+            if (element) {
+                element.textContent = data.proposed_draft;
+                element.className = "ai-declined";
+                element.onclick = null;
+            }
+            counts.pending--;
+            counts.rejected++;
+            updateStatusDisplay();
+            const card = document.getElementById(`card-${id}`);
+            card.classList.add('card-resolved');
+            highlightWrapper(id);
+            showToast("AI Change Declined - Draft Kept", "error");
+        }
+
+        function highlightWrapper(id) {
+            const wrapperMap = {1: 'doc-wrapper-1', 2: 'doc-wrapper-2', 3: 'doc-wrapper-payment', 4: 'doc-wrapper-term', 5: 'doc-wrapper-conf', 6: 'doc-wrapper-conf'};
+            const wrapperId = wrapperMap[id];
+            if(document.getElementById(wrapperId)) {
+                document.getElementById(wrapperId).classList.add('editing-highlight');
+                setTimeout(() => { document.getElementById(wrapperId).classList.remove('editing-highlight'); }, 1000);
+            }
+        }
+
+        function toggleSidebar() { 
+            document.getElementById('main-grid').classList.toggle('sidebar-hidden'); 
+            document.getElementById('ai-studio-panel').classList.toggle('hidden');
+        }
+        
+        function toggleGlobalEdit() {
+            const content = document.getElementById('contract-content');
+            const btn = document.getElementById('global-edit-btn');
+            const isEditing = content.contentEditable === "true";
+            if (isEditing) {
+                content.contentEditable = "false";
+                btn.innerHTML = 'Edit Document';
+                showToast("Document Updated", "success");
+            } else {
+                content.contentEditable = "true";
+                btn.innerHTML = 'Save Changes';
+            }
+        }
+
+        function switchAITab(tab) {
+            const r = document.getElementById('redlineContent');
+            const a = document.getElementById('assistantContent');
+            const rT = document.getElementById('redlineTab');
+            const aT = document.getElementById('assistantTab');
+            const s = document.getElementById('status-container');
+            
+            if (tab === 'redline') {
+                r.classList.remove('hidden'); a.classList.add('hidden');
+                s.classList.remove('hidden');
+                rT.classList.add('bg-white', 'shadow-sm', 'text-gray-900'); aT.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+            } else {
+                r.classList.add('hidden'); a.classList.remove('hidden');
+                s.classList.add('hidden');
+                aT.classList.add('bg-white', 'shadow-sm', 'text-gray-900'); rT.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            if (!input.value.trim()) return;
+            const msgs = document.querySelector('#assistantContent .overflow-y-auto');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex justify-end mt-4';
+            const msgBubble = document.createElement('div');
+            msgBubble.className = 'bg-gray-900 text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] text-xs';
+            msgBubble.textContent = input.value;
+            msgDiv.appendChild(msgBubble);
+            msgs.appendChild(msgDiv);
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast-notification');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-message').textContent = msg;
+            if(type === 'error') {
+                icon.className = "bg-red-500 rounded-full p-1";
+                icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>';
+            } else {
+                icon.className = "bg-green-500 rounded-full p-1";
+                icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+            }
+            t.classList.remove('hidden');
+            setTimeout(() => { t.classList.add('hidden'); }, 3000);
+        }
+    </script>
+</body>
+</html>
