@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Review System - Hyundai 2026 MSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+
+        :root {
+        /* Defining the variable with its fallback color */
+        --vds-color-stone: rgb(242, 223, 181);
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 70%;
+        }
+        
+        .strikethrough-red { 
+            text-decoration: line-through; 
+            text-decoration-color: #d4691a; 
+            text-decoration-thickness: 2px;
+            color: #d4691a;
+        }
+        .hidden { display: none !important; }
+        
+        /* Highlight border for active editing */
+        .editing-highlight {
+            border: 2px solid #ED1C24 !important;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(237, 28, 36, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        /* Base State: Needs Review */
+        .review-needed {
+            text-decoration: underline;
+            text-decoration-style: solid;
+            text-decoration-color: #0066cc;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 2px;
+            background-color: white;
+            padding: 2px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #0066cc;
+        }
+
+        /* State: AI Accepted */
+        .ai-accepted {
+            text-decoration: none;
+            background-color: #DCFCE7;
+            color: #166534;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #86EFAC;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* State: AI Declined */
+        .ai-declined {
+            text-decoration: none;
+            background-color: #FEE2E2;
+            color: #991B1B;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #FECACA;
+        }
+
+        /* Card Fading Effect */
+        .card-resolved {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.8);
+            transform: scale(0.98);
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages { max-height: calc(100vh - 520px); overflow-y: auto; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+        /* READ MODE - Hide redlines and highlights */
+        body.read-mode .review-needed {
+            text-decoration: none !important;
+            background-color: transparent !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration-color: transparent !important;
+        }
+
+        body.read-mode .strikethrough-red {
+            text-decoration: none !important;
+            text-decoration-color: transparent !important;
+            color: inherit !important;
+        }
+
+        /* ===================================
+           REDLINE REVIEW SECTION STYLING
+           ================================== */
+        
+        /* Redline section container */
+        .redline-section {
+            background-color: rgba(248, 243, 233, 1);
+            border: 1px solid #d4c4b0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .redline-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333333;
+            margin-bottom: 8px;
+            text-transform: capitalize;
+        }
+
+        .redline-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        /* Strikethrough text (Original/Deleted) */
+        .text-deleted {
+            text-decoration: line-through;
+            color: #d4691a;
+            background-color: transparent;
+        }
+
+        /* Underline text (Proposed/Added) */
+        .text-added {
+            text-decoration: underline;
+            text-decoration-color: #0066cc;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 3px;
+            color: #0066cc;
+            background-color: transparent;
+        }
+
+        /* AI Recommendations section */
+        .ai-recommendations {
+            background-color: rgba(248, 243, 233, 1);
+            border: 1px solid #d4c4b0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .ai-recommendations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .ai-recommendations-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-icon {
+            font-size: 18px;
+            color: #d4691a;
+        }
+
+        .ai-edit-link {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            background: none;
+            border: none;
+            padding: 0;
+            font-weight: 500;
+        }
+
+        .ai-recommendations-text {
+            color: #333333;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .ai-reasoning {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #0066cc;
+            font-size: 14px;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        /* LAYOUT GRID - 3 COLUMNS (Rail | Content | AI) */
+        #main-grid {
+            display: grid;
+            height: 100vh;
+            /* 60px Rail | Fluid Content | 450px AI Studio */
+            grid-template-columns: 60px 1fr 450px; 
+            grid-template-rows: 1fr;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-left: 0;
+            width: 100%;
+            gap: 0;
+        }
+        
+        /* Grid item positioning */
+        #main-grid > aside {
+            grid-column: 1;
+        }
+        
+        #main-grid > div:nth-child(2) {
+            grid-column: 2;
+            overflow: hidden;
+        }
+        
+        #main-grid > #ai-studio-panel {
+            grid-column: 3;
+            overflow: hidden;
+        }
+        
+        /* Maximized State: Hides the 3rd column (AI Studio) */
+        #main-grid.maximize-contract {
+            grid-template-columns: 60px 1fr 0px; 
+        }
+        
+        #main-grid.sidebar-open {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+        }
+
+        /* PERSISTENT SIDEBAR RAIL */
+        .sidebar-rail {
+            background-color: white;
+            border-right: 2px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 1rem;
+            z-index: 30;
+        }
+
+        .rail-toggle-btn {
+            color: #374151;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        .rail-toggle-btn:hover {
+            background-color: #F3F4F6;
+        }
+
+        /* Verizon Card Styling */
+        .verizon-card {
+            background-color: white;
+            border-radius: 6px;
+            border: 2px solid #d4c4b0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .verizon-card:hover {
+            border-color: #c9b89e;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Active/Selected state - Yellow background */
+        .verizon-card.active {
+            background-color: #FFFBEB !important;
+            border-color: #F59E0B !important;
+        }
+
+        .verizon-card.risk-high-card { border: 2px solid #FFFBEB; background-color: white; }
+        .verizon-card.risk-high-card.active { background-color: #FFFBEB !important; border-color: #F59E0B !important; }
+
+        .verizon-card.risk-medium-card { border: 2px solid #FFFBEB; background-color: white; }
+        .verizon-card.risk-medium-card.active { background-color: #FFFBEB !important; border-color: #F59E0B !important; }
+
+        .verizon-card.risk-low-card { border: 2px solid #FFFBEB; background-color: white; }
+        .verizon-card.risk-low-card.active { background-color: #FFFBEB !important; border-color: #F59E0B !important; }
+
+        /* LEFT SIDEBAR STYLES (Sliding) */
+        .left-sidebar-nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgb(239, 217, 172);
+            border-right: 1px solid #D1D5DB;
+            z-index: 999;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding: 0;
+            margin: 0;
+        }
+
+        .left-sidebar-nav.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #D1D5DB;
+            gap: 8px;
+            background: rgba(248, 243, 233, 1);
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #D1D5DB;
+            background: rgba(248, 243, 233, 1);
+        }
+
+        .sidebar-logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #C41E3A;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-co-pilot {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .co-pilot-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .co-pilot-label {
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .co-pilot-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: #374151;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            padding-left: 0;
+        }
+
+        .sidebar-item.active {
+            color: #C41E3A;
+            border-left-color: #C41E3A;
+            padding-left: 9px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .risk-high { background-color: #B95319; color: #f7f4f3; border: 1px solid #B95319; }
+        .risk-medium { background-color: #FFCD27; color: #f7f4f3; border: 1px solid #FFCD27; }
+        .risk-low { background-color: #008331; color: #f7f4f3; border: 1px solid #008331; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .status-pending { background-color: #FEF3C7; color: #92400E; }
+        .status-accepted { background-color: #DCFCE7; color: #166534; }
+        .status-rejected { background-color: #FEE2E2; color: #991B1B; }
+
+        /* VERSION HISTORY POPUP */
+        .version-popup {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 320px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: none;
+            margin-top: 8px;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        .version-popup.show { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .version-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #F3F4F6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .version-item:hover { background-color: #F9FAFB; }
+        .version-item:last-child { border-bottom: none; }
+        .version-item.active { background-color: #FEF2F2; border-left: 3px solid #DC2626; }
+
+        /* MODE DROPDOWN */
+        .mode-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: none;
+            margin-top: 4px;
+        }
+        .mode-dropdown.show { display: block; }
+        
+        .mode-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        .mode-option:hover { background-color: #F3F4F6; }
+        .mode-option.active { color: #DC2626; background-color: #FEF2F2; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-gray-50 overflow-hidden" onload="initializeDocument()">
+    
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebarNav()"></div>
+
+    <div class="left-sidebar-nav" id="leftSidebarNav">
+        <div class="sidebar-header">
+            <button class="sidebar-close" onclick="toggleSidebarNav()">←</button>
+            <div style="flex: 1;"></div>
+            <button class="sidebar-layout-btn" style="background: none; border: 1px solid #D1D5DB; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #374151;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </button>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-co-pilot">
+                <div class="sidebar-logo-icon">V</div>
+                <div class="co-pilot-text">
+                    <span class="co-pilot-label">Verizon</span>
+                    <span class="co-pilot-title">Co-Pilot Studio</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-item">
+                <div class="sidebar-item-icon" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+                <span>My Next Best Actions</span>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-item-icon" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+                <span>New Chat</span>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-item-icon" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+                <span>Contracts</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 16px 0;">My Accounts</h3>
+            <div class="sidebar-item" style="font-weight: 600; cursor: default;"><span>Hermes Holding US Inc.</span></div>
+            <div class="sidebar-item active"><span>2026 Master Service Agreement</span></div>
+            <div class="sidebar-item"><span>2026 Proposal</span></div>
+            <div class="sidebar-item"><span>Respond to Email</span></div>
+            <div class="sidebar-item" style="margin-top: 12px; font-weight: 600; cursor: default;"><span>Walmart</span></div>
+            <div class="sidebar-item"><span>Jernigan Oil</span></div>
+        </div>
+
+        <!-- My Chats Section -->
+        <div class="sidebar-section">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin: 0;">My Chats</h3>
+                <button style="background: none; border: none; cursor: pointer; color: #6B7280; padding: 0; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-item"><span>Hermes Agreement Clauses</span></div>
+            <div class="sidebar-item"><span>Hermes security laws</span></div>
+            <div class="sidebar-item"><span>Email response to Moira Rose</span></div>
+            <div class="sidebar-item"><span>Hermes security laws</span></div>
+            <div class="sidebar-item"><span>Email response to John Martin</span></div>
+            <div style="color: #C41E3A; text-decoration: underline; font-size: 13px; margin-top: 12px; cursor: pointer; padding: 10px 0;">View more chats</div>
+        </div>
+    </div>
+    
+    <div id="toast-notification" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3">
+        <div id="toast-icon" class="bg-green-500 rounded-full p-1"></div>
+        <span id="toast-message" class="font-medium text-sm">Action Successful</span>
+    </div>
+
+    <div id="main-grid">
+        
+        <aside class="sidebar-rail">
+            <button class="rail-toggle-btn" onclick="toggleSidebarNav()" title="Toggle Sidebar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+        </aside>
+
+        <div class="flex flex-col overflow-hidden border-r-2 border-gray-200 bg-white">
+            <header class="bg-white border-b-2 border-gray-200 px-6 py-3 shadow-sm z-20 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex flex-col">
+                            <span class="text-xs uppercase font-bold text-gray-600">Hyundai</span>
+                            <h1 class="text-2xl font-bold text-red-600">2026 Master Service Agreement</h1>
+                        </div>
+                        <span class="px-2 py-1 bg-gray-100 text-xs font-bold text-gray-700 rounded">Draft</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="px-6 py-2 bg-gray-900 text-white text-xs font-bold rounded hover:bg-gray-800">Submit</button>
+                        
+                        <button id="maximizeBtn" onclick="toggleAIMaximize()" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Toggle Full Screen">
+                            <svg id="maxIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h6v6"></path>
+                                <path d="M9 21H3v-6"></path>
+                                <path d="M21 3l-7 7"></path>
+                                <path d="M3 21l7-7"></path>
+                            </svg>
+                            <svg id="minIcon" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 14h6v6"></path>
+                                <path d="M20 10h-6V4"></path>
+                                <path d="M14 10l7-7"></path>
+                                <path d="M3 21l7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="sticky top-0 bg-white/95 backdrop-blur z-10 px-8 py-3 border-b border-gray-200 flex items-center justify-between">
+                
+                <div class="relative">
+                    <button class="flex items-center gap-2 text-xs font-bold text-gray-900 hover:bg-gray-100 px-2 py-1 rounded" onclick="toggleVersionHistory()">
+                        <span>Version 2.0 (Jan 20, 2026)</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    
+                    <div id="versionHistoryPanel" class="version-popup">
+                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase">Version History</h3>
+                        </div>
+                        <div class="version-item active">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-sm font-bold text-gray-900">Version 2.0</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">Edited just now by You</div>
+                                </div>
+                                <span class="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-bold">Current</span>
+                            </div>
+                        </div>
+                        <div class="version-item">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-700">Version 1.5 (Auto-save)</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">Today, 10:42 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="version-item">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-700">Version 1.0</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">Jan 15, 2026 by Legal Team</div>
+                                </div>
+                                <span class="bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded font-bold">Original</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <button id="global-edit-btn" onclick="toggleModeDropdown()" class="flex items-center gap-2 text-xs font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded bg-white border border-red-100">
+                        <span id="currentModeIcon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        </span>
+                        <span id="modeLabel">Markup mode</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    
+                    <div id="markupDropdown" class="mode-dropdown">
+                        <div class="mode-option" onclick="setMode('read')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <span>Read Mode</span>
+                        </div>
+                        <div class="mode-option active" onclick="setMode('markup')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                            <span>Markup Mode</span>
+                        </div>
+                        <div class="mode-option" onclick="setMode('edit')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span>Edit Mode</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto">
+                <div id="contract-content" class="px-12 py-10 max-w-4xl mx-auto ml-8">
+                    <section id="doc-wrapper-1" class="pb-8 mb-8 border-b border-gray-200">
+                        <span class="text-xs uppercase font-bold text-gray-500">Section 1</span>
+                        <h2 class="text-2xl font-bold text-gray-700 mt-2 mb-4">Definitions</h2>
+                        <div class="text-base text-gray-500 leading-relaxed space-y-3">
+                            <p><strong>Customer agreement for Verizon Wireless Internet Data Services (Hyundai) customer agreement for Verizon Wireless Internet Data Service (Hyundai)</strong></p>
+                            <p>Thank you for choosing Verizon Wireless. In this Customer Agreement ("Agreement"), you'll find important information about your Verizon Wireless Internet Data service (the "Service"), offered to you through Hyundai Motor America ("HMA") Wi-Fi + Streaming which are more fully described in the Connected Services Agreement Terms and Conditions (available at https://owners.hyundaiusa.com/us/en/terms-and-conditions). The information contained in this Agreement addresses:</p>
+                            <ul class="list-disc list-inside ml-4">
+                                <li>Our ability to make changes to your Service or this Agreement's terms.</li>
+                                <li>Our liability if things don't work as planned and how any disputes between us must be resolved in arbitration or small claims court.</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-2" class="pb-8 mb-8 border-b border-gray-200">
+                        <span class="text-xs uppercase font-bold text-gray-500">Section 2</span>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-2 mb-4">Service Level Agreement</h2>
+                        <div class="text-base text-gray-700 leading-relaxed space-y-3">
+                            <p><strong>Service Availability & Credits</strong></p>
+                            <p>Verizon commits to maintaining high service availability standards for all wireless data services provided under this agreement.</p>
+                            <p><strong>Service Credit Policy:</strong> <span class="strikethrough-red">Service credits shall be issued for interruptions exceeding 24 consecutive hours.</span> <span class="review-needed" id="doc-change-1" onclick="scrollToCard(1)">Service credits shall be issued for interruptions exceeding 4 consecutive hours.</span></p>
+                            <p>Service credits will be calculated as a percentage of the monthly service fee, prorated based on the duration of the outage. Customers must report service interruptions within 48 hours to be eligible for credits.</p>
+                            <p><strong>Notification Requirements:</strong></p>
+                            <p>Verizon will provide advance notification of planned maintenance windows that may affect service availability. Emergency maintenance may be performed without prior notice when necessary to maintain network integrity.</p>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-3" class="pb-8 mb-8 border-b border-gray-200">
+                        <span class="text-xs uppercase font-bold text-gray-500">Section 3</span>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-2 mb-4">Data Protection & Privacy Compliance</h2>
+                        <div class="text-base text-gray-700 leading-relaxed space-y-3">
+                            <p><strong>Data Handling & Security</strong></p>
+                            <p>Both parties acknowledge the importance of protecting customer data and personal information in accordance with applicable data protection regulations.</p>
+                            <p><strong>Compliance Standards:</strong> <span class="strikethrough-red">Provider must comply with GDPR, CCPA, and equivalent data protection regulations.</span> <span class="review-needed" id="doc-change-2" onclick="scrollToCard(2)">Provider shall implement industry-standard security measures to protect customer data.</span></p>
+                            <p>All data transmitted through Verizon's network shall be encrypted using current industry-standard protocols. Verizon maintains SOC 2 Type II certification and undergoes regular third-party security audits.</p>
+                            <p><strong>Data Breach Notification:</strong></p>
+                            <p>In the event of a data breach affecting customer information, Verizon will notify Hyundai Motor America within 72 hours of discovery and provide detailed information about the scope and impact of the breach.</p>
+                        </div>
+                    </section>
+
+                    <section id="doc-wrapper-4" class="pb-8 mb-8 border-b border-gray-200">
+                        <span class="text-xs uppercase font-bold text-gray-500">Section 4</span>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-2 mb-4">Payment Terms & Billing</h2>
+                        <div class="text-base text-gray-700 leading-relaxed space-y-3">
+                            <p><strong>Payment Schedule & Terms</strong></p>
+                            <p>All service fees shall be invoiced monthly in accordance with the pricing schedule outlined in Exhibit A.</p>
+                            <p><strong>Payment Terms:</strong> <span class="strikethrough-red">Payment is due within Net 30 days from the invoice date.</span> <span class="review-needed" id="doc-change-3" onclick="scrollToCard(3)">Payment is due within Net 45 days from the invoice date.</span></p>
+                            <p>Late payments will accrue interest at a rate of 1.5% per month or the maximum rate permitted by law, whichever is less. Hyundai Motor America may dispute any invoice by providing written notice within 15 days of receipt.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <div id="ai-studio-panel" class="flex flex-col bg-white overflow-hidden border-l-2 border-gray-200">
+            <div class="p-5 border-b border-gray-200 flex-shrink-0 bg-white">
+                <h2 class="text-xl font-bold text-red-600 mb-4">AI Studio</h2>
+                <div class="flex gap-4 mb-4 border-b border-gray-200">
+                    <button id="redlineTab" class="text-sm font-semibold text-red-600 pb-3 border-b-2 border-red-600 cursor-pointer" onclick="switchAITab('redline')">Redline review (3)</button>
+                    <button id="assistantTab" class="text-sm font-semibold text-gray-500 pb-3 cursor-pointer" onclick="switchAITab('assistant')">Ask AI assistant</button>
+                </div>
+                <div id="status-container" class="flex gap-2">
+                    <span class="status-badge status-pending"><span id="cnt-pending">3</span> Pending</span>
+                    <span class="status-badge status-accepted"><span id="cnt-accepted">0</span> Accepted</span>
+                    <span class="status-badge status-rejected"><span id="cnt-rejected">0</span> Rejected</span>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto bg-white">
+                <div id="redlineContent" class="w-full space-y-3 p-2">
+                    
+                    <div class="verizon-card risk-high-card p-4 bg-white" id="card-1">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase">Section 2</span>
+                                <p class="text-sm font-bold text-gray-900 mt-1">Service Level Agreement - Credit Policy</p>
+                            </div>
+                            <span class="risk-badge risk-high">High risk</span>
+                        </div>
+
+                        <!-- Original Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border-2 border-black cursor-pointer hover:border-black transition-all" id="original-1" onclick="applyOriginal(2); scrollToContractSection(2)">
+                            <div class="text-xs font-bold text-gray-400 mb-1 uppercase">Original</div>
+                            <p class="text-xs text-gray-600 strikethrough-red">Service credits shall be issued for interruptions exceeding 24 consecutive hours.</p>
+                        </div>
+
+                        <!-- Proposed Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border border-black cursor-pointer hover:border-black transition-all" id="proposed-1" onclick="scrollToContractSection(2)">
+                            <div class="text-xs font-bold text-gray-400 mb-1 uppercase">Proposed</div>
+                            <p class="text-xs text-gray-900">Service credits shall be issued for interruptions exceeding 4 consecutive hours.</p>
+                        </div>
+
+                        <!-- AI Recommendations Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border-2 border-black cursor-pointer hover:border-yellow-400 transition-all" id="ai-rec-box-1" onclick="scrollToContractSection(2)">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #C41E3A;">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                    </svg>
+                                    <span class="text-xs font-bold text-gray-900">AI recommendations</span>
+                                </div>
+                                <button class="text-xs font-bold text-gray-700 underline hover:text-gray-900 cursor-pointer" onclick="editAIRecommendation(1); event.stopPropagation();">Edit</button>
+                            </div>
+                            <p class="text-xs text-gray-700 mb-2" id="ai-rec-text-1">Service credits shall be issued for interruptions exceeding 12 consecutive hours with automated escalation.</p>
+                            
+                            <!-- Edit Mode (Hidden by default) -->
+                            <div id="ai-rec-edit-1" class="hidden">
+                                <textarea class="w-full p-2 border border-gray-300 rounded text-xs mb-2" id="ai-rec-input-1">Service credits shall be issued for interruptions exceeding 12 consecutive hours with automated escalation.</textarea>
+                                <div class="flex gap-2 items-center justify-between">
+                                    <div class="flex gap-2">
+                                        <button class="text-xs font-bold text-gray-600 underline cursor-pointer" onclick="undoAI(1)">Undo</button>
+                                        <button class="text-xs font-bold text-gray-600 underline cursor-pointer" onclick="redoAI(1)">Redo</button>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="px-3 py-1 border border-gray-300 text-xs font-bold rounded cursor-pointer hover:bg-gray-100" onclick="cancelEditAI(1)">Cancel</button>
+                                        <button class="px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded cursor-pointer hover:bg-gray-800" onclick="saveEditAI(1)">Done</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Reasoning Section (Collapsible) -->
+                            <div class="mt-3 pt-3 border-t border-gray-300">
+                                <button class="text-xs text-gray-600 hover:text-gray-900 cursor-pointer flex items-center gap-1" onclick="toggleReasoning(1)">
+                                    <span id="reasoning-arrow-1">▼</span>
+                                    <span>AI reasoning</span>
+                                </button>
+                                <div id="reasoning-content-1" class="mt-2 text-xs text-gray-700 space-y-1">
+                                    <p>• The change from 24 hours to 4 hours significantly improves customer protection during service outages.</p>
+                                    <p>• However, 4 hours may be too aggressive and could lead to excessive credit claims for minor disruptions.</p>
+                                    <p>• A middle ground of 12 hours balances customer satisfaction with operational feasibility.</p>
+                                    <p>• Automated escalation ensures proactive issue resolution rather than reactive credit processing.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-bold rounded hover:bg-gray-100 cursor-pointer" onclick="declineSuggestion(1)">Decline</button>
+                            <button class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded hover:bg-gray-800 cursor-pointer" onclick="applySuggestion(1)">Accept</button>
+                        </div>
+                    </div>
+
+                    <div class="verizon-card risk-medium-card p-4 bg-white" id="card-2">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase">Section 3</span>
+                                <p class="text-sm font-bold text-gray-900 mt-1">Data Protection & Privacy Compliance</p>
+                            </div>
+                            <span class="risk-badge risk-medium">Medium risk</span>
+                        </div>
+
+                        <!-- Original Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border-2 border-black cursor-pointer hover:border-black transition-all" id="original-2" onclick="applyOriginal(3); scrollToContractSection(3)">
+                            <div class="text-xs font-bold text-gray-400 mb-1 uppercase">Original</div>
+                            <p class="text-xs text-gray-600"><span class="strikethrough-red">Provider must comply with GDPR, CCPA, and equivalent data protection regulations.</span></p>
+                        </div>
+
+                        <!-- Proposed Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border border-black cursor-pointer hover:border-black transition-all" id="proposed-2" onclick="scrollToContractSection(3)">
+                            <div class="text-xs font-bold text-gray-400 mb-1 uppercase">Proposed</div>
+                            <p class="text-xs text-gray-900">Provider shall implement industry-standard security measures to protect customer data.</p>
+                        </div>
+
+                        <!-- AI Recommendations Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border-2 border-black cursor-pointer hover:border-yellow-400 transition-all" id="ai-rec-box-2" onclick="scrollToContractSection(3)">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #C41E3A;">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                    </svg>
+                                    <span class="text-xs font-bold text-gray-900">AI recommendations</span>
+                                </div>
+                                <button class="text-xs font-bold text-gray-700 underline hover:text-gray-900 cursor-pointer" onclick="editAIRecommendation(2); event.stopPropagation();">Edit</button>
+                            </div>
+                            <p class="text-xs text-gray-700 mb-2" id="ai-rec-text-2">Provider shall comply with GDPR, CCPA, and maintain SOC 2 Type II certification with annual audits.</p>
+                            
+                            <!-- Edit Mode (Hidden by default) -->
+                            <div id="ai-rec-edit-2" class="hidden">
+                                <textarea class="w-full p-2 border border-gray-300 rounded text-xs mb-2" id="ai-rec-input-2">Provider shall comply with GDPR, CCPA, and maintain SOC 2 Type II certification with annual audits.</textarea>
+                                <div class="flex gap-2 items-center justify-between">
+                                    <div class="flex gap-2">
+                                        <button class="text-xs font-bold text-gray-600 underline cursor-pointer" onclick="undoAI(2)">Undo</button>
+                                        <button class="text-xs font-bold text-gray-600 underline cursor-pointer" onclick="redoAI(2)">Redo</button>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="px-3 py-1 border border-gray-300 text-xs font-bold rounded cursor-pointer hover:bg-gray-100" onclick="cancelEditAI(2)">Cancel</button>
+                                        <button class="px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded cursor-pointer hover:bg-gray-800" onclick="saveEditAI(2)">Done</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Reasoning Section (Collapsible) -->
+                            <div class="mt-3 pt-3 border-t border-gray-300">
+                                <button class="text-xs text-gray-600 hover:text-gray-900 cursor-pointer flex items-center gap-1" onclick="toggleReasoning(2)">
+                                    <span id="reasoning-arrow-2">▼</span>
+                                    <span>AI reasoning</span>
+                                </button>
+                                <div id="reasoning-content-2" class="mt-2 text-xs text-gray-700 space-y-1">
+                                    <p>• The proposed language removes specific regulatory compliance requirements (GDPR/CCPA).</p>
+                                    <p>• "Industry-standard" is vague and may not provide adequate protection for customer data.</p>
+                                    <p>• Recommend explicitly stating compliance with GDPR and CCPA to ensure legal protection.</p>
+                                    <p>• Adding SOC 2 Type II certification provides third-party validation of security controls.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-bold rounded hover:bg-gray-100 cursor-pointer" onclick="declineSuggestion(2)">Decline</button>
+                            <button class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded hover:bg-gray-800 cursor-pointer" onclick="applySuggestion(2)">Accept</button>
+                        </div>
+                    </div>
+
+                    <div class="verizon-card risk-low-card p-4 bg-white" id="card-3">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase">Section 4</span>
+                                <p class="text-sm font-bold text-gray-900 mt-1">Payment Terms & Billing</p>
+                            </div>
+                            <span class="risk-badge risk-low">Low risk</span>
+                        </div>
+
+                        <!-- Original Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border-2 border-black cursor-pointer hover:border-black transition-all" id="original-3" onclick="applyOriginal(4); scrollToContractSection(4)">
+                            <div class="text-xs font-bold text-gray-400 mb-1 uppercase">Original</div>
+                            <p class="text-xs text-gray-600"><span class="strikethrough-red">Payment is due within Net 30 days from the invoice date.</span></p>
+                        </div>
+
+                        <!-- Proposed Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border border-black cursor-pointer hover:border-black transition-all" id="proposed-3" onclick="scrollToContractSection(4)">
+                            <div class="text-xs font-bold text-gray-400 mb-1 uppercase">Proposed</div>
+                            <p class="text-xs text-gray-900">Payment is due within Net 45 days from the invoice date.</p>
+                        </div>
+
+                        <!-- AI Recommendations Section - Clickable -->
+                        <div class="mb-3 p-3 bg-yellow-50 rounded border-2 border-black cursor-pointer hover:border-yellow-400 transition-all" id="ai-rec-box-3" onclick="scrollToContractSection(4)">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #C41E3A;">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                    </svg>
+                                    <span class="text-xs font-bold text-gray-900">AI recommendations</span>
+                                </div>
+                                <button class="text-xs font-bold text-gray-700 underline hover:text-gray-900 cursor-pointer" onclick="editAIRecommendation(3); event.stopPropagation();">Edit</button>
+                            </div>
+                            <p class="text-xs text-gray-700 mb-2" id="ai-rec-text-3">Payment is due within Net 30 days from the invoice date to maintain standard terms.</p>
+                            
+                            <!-- Edit Mode (Hidden by default) -->
+                            <div id="ai-rec-edit-3" class="hidden">
+                                <textarea class="w-full p-2 border border-gray-300 rounded text-xs mb-2" id="ai-rec-input-3">Payment is due within Net 30 days from the invoice date to maintain standard terms.</textarea>
+                                <div class="flex gap-2 items-center justify-between">
+                                    <div class="flex gap-2">
+                                        <button class="text-xs font-bold text-gray-600 underline cursor-pointer" onclick="undoAI(3)">Undo</button>
+                                        <button class="text-xs font-bold text-gray-600 underline cursor-pointer" onclick="redoAI(3)">Redo</button>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="px-3 py-1 border border-gray-300 text-xs font-bold rounded cursor-pointer hover:bg-gray-100" onclick="cancelEditAI(3)">Cancel</button>
+                                        <button class="px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded cursor-pointer hover:bg-gray-800" onclick="saveEditAI(3)">Done</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Reasoning Section (Collapsible) -->
+                            <div class="mt-3 pt-3 border-t border-gray-300">
+                                <button class="text-xs text-gray-600 hover:text-gray-900 cursor-pointer flex items-center gap-1" onclick="toggleReasoning(3)">
+                                    <span id="reasoning-arrow-3">▼</span>
+                                    <span>AI reasoning</span>
+                                </button>
+                                <div id="reasoning-content-3" class="mt-2 text-xs text-gray-700 space-y-1">
+                                    <p>• Extended payment terms from Net 30 to Net 45 improves customer cash flow by 15 days.</p>
+                                    <p>• This is a low-risk change as it's favorable to Hyundai Motor America.</p>
+                                    <p>• However, Net 30 is industry standard and maintains consistency with other vendors.</p>
+                                    <p>• Consider accepting the proposed Net 45 if cash flow management is a priority.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 border-t border-gray-200 pt-3">
+                            <button class="flex-1 px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-bold rounded hover:bg-gray-100 cursor-pointer" onclick="declineSuggestion(3)">Decline</button>
+                            <button class="flex-1 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded hover:bg-gray-800 cursor-pointer" onclick="applySuggestion(3)">Accept</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="assistantContent" class="hidden flex flex-col h-full bg-white relative">
+                    <!-- Chat Messages -->
+                    <div class="chat-messages p-6 space-y-4 flex-1 overflow-y-auto pb-24">
+                        <!-- Timestamp -->
+                        <div class="text-center text-xs text-gray-500 mb-4">
+                            <p>Thu, Nov 6 at 10:15AM</p>
+                        </div>
+
+                        <!-- User Question -->
+                        <div class="flex justify-end">
+                            <div class="bg-yellow-100 p-4 rounded-lg max-w-[70%] text-xs text-gray-900">
+                                <p>What are California laws for security?</p>
+                            </div>
+                        </div>
+
+                        <!-- Thinking -->
+                        <div class="flex justify-start">
+                            <div class="text-xs text-gray-500 italic">
+                                <p>Thought for 16 seconds</p>
+                            </div>
+                        </div>
+
+                        <!-- AI Response -->
+                        <div class="flex justify-start">
+                            <div class="bg-white p-4 rounded-lg max-w-[85%] text-xs text-gray-900 border border-gray-200">
+                                <p class="mb-3">I'll analyze the account data and benchmarks to create an AI-powered proposal for the QBR. Here are some key insights for this proposal.</p>
+                                
+                                <p class="font-bold mb-2">Approach</p>
+                                <ul class="list-disc list-inside mb-3 space-y-1">
+                                    <li>Engaging mobile solutions with competitive bundle value</li>
+                                    <li>Expand into CLEU solutions</li>
+                                </ul>
+
+                                <p class="font-bold mb-2">High engagement opportunity</p>
+                                <ul class="list-disc list-inside mb-3 space-y-1">
+                                    <li>Sales win rate is 18% above the channel average, indicating strong engagement</li>
+                                    <li>Potential $450K opportunity</li>
+                                </ul>
+
+                                <p class="font-bold mb-2">Win strategy</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Engaging 5G opportunities and enterprise security features</li>
+                                    <li>Propose Push to Talk</li>
+                                    <li>Highlight security for Taylor Smith CTOs</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Action Icons -->
+                        <div class="flex justify-start gap-4 text-gray-400 mt-4 pl-4">
+                            <button class="hover:text-gray-600 cursor-pointer" title="Thumbs Up">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                </svg>
+                            </button>
+                            <button class="hover:text-gray-600 cursor-pointer" title="Thumbs Down">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2h-2.67"></path>
+                                </svg>
+                            </button>
+                            <button class="hover:text-gray-600 cursor-pointer" title="Sound">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                    <path d="M15.54 8.46a6.5 6.5 0 0 1 0 9.07"></path>
+                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                </svg>
+                            </button>
+                            <button class="hover:text-gray-600 cursor-pointer" title="More">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <circle cx="12" cy="5" r="2"></circle>
+                                    <circle cx="12" cy="12" r="2"></circle>
+                                    <circle cx="12" cy="19" r="2"></circle>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Suggested Actions -->
+                        <div class="space-y-2 mt-6">
+                            <button class="w-full px-4 py-2 border border-gray-300 text-xs text-gray-700 rounded hover:bg-gray-50 cursor-pointer font-medium">Summarize vendor-added change</button>
+                            <button class="w-full px-4 py-2 border border-gray-300 text-xs text-gray-700 rounded hover:bg-gray-50 cursor-pointer font-medium">Asses risk and impact</button>
+                            <button class="w-full px-4 py-2 border border-gray-300 text-xs text-gray-700 rounded hover:bg-gray-50 cursor-pointer font-medium">Propose revised clause wording</button>
+                            <button class="w-full px-4 py-2 border border-gray-300 text-xs text-gray-700 rounded hover:bg-gray-50 cursor-pointer font-medium">Suggest negotiation response</button>
+                        </div>
+
+                        <!-- See More -->
+                        <div class="mt-4 text-xs">
+                            <button class="text-gray-900 underline hover:text-gray-700 cursor-pointer font-medium">See more</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input - Fixed at Bottom -->
+                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
+                        <div class="flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-600">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                            <input type="text" placeholder="Ask Verizon AI Studio..." class="flex-1 bg-gray-100 border-none outline-none text-xs text-gray-700 placeholder-gray-400">
+                            <button class="text-gray-600 hover:text-gray-900 cursor-pointer">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 L4.13399899,1.16346707 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.837654326,3.0486314 1.15159189,3.98721575 L3.03521743,10.4282088 C3.03521743,10.5853061 3.19218622,10.7424035 3.50612381,10.7424035 L16.6915026,11.5278904 C16.6915026,11.5278904 17.1624089,11.5278904 17.1624089,12.0042099 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z"></path>
+                                </svg>
+                            </button>
+                            <button class="text-gray-600 hover:text-gray-900 cursor-pointer">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                            <button class="text-gray-600 hover:text-gray-900 cursor-pointer">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7 10c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.66 0-3 1.34-3 3 0 1.31.84 2.41 2 2.83V17c0 .55.45 1 1 1s1-.45 1-1v-1.17c1.16-.42 2-1.52 2-2.83 0-1.66-1.34-3-3-3zm0 0v-2m10-8h-3V2h3v2zm0 5h-3v-2h3v2zm0 5h-3v-2h3v2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initializeDocument() { 
+            console.log('Document initialized');
+            
+            // Add click handlers to cards
+            const cards = document.querySelectorAll('.verizon-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Remove active class from all cards
+                    cards.forEach(c => c.classList.remove('active'));
+                    // Add active class to clicked card
+                    this.classList.add('active');
+                    e.stopPropagation();
+                });
+            });
+            
+            // Remove active class when clicking outside cards
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.verizon-card')) {
+                    cards.forEach(c => c.classList.remove('active'));
+                }
+            });
+        }
+
+        // --- NEW: Toggle AI Panel / Maximize Contract ---
+        function toggleAIMaximize() {
+            const grid = document.getElementById('main-grid');
+            const maxIcon = document.getElementById('maxIcon');
+            const minIcon = document.getElementById('minIcon');
+            
+            grid.classList.toggle('maximize-contract');
+            
+            // Toggle Icons
+            if (grid.classList.contains('maximize-contract')) {
+                maxIcon.classList.add('hidden');
+                minIcon.classList.remove('hidden');
+            } else {
+                maxIcon.classList.remove('hidden');
+                minIcon.classList.add('hidden');
+            }
+        }
+
+        // --- NEW: Toggle Version History Popup ---
+        function toggleVersionHistory() {
+            const popup = document.getElementById('versionHistoryPanel');
+            const dropdown = document.getElementById('markupDropdown');
+            // Close other dropdowns
+            dropdown.classList.remove('show');
+            popup.classList.toggle('show');
+        }
+
+        // --- NEW: Toggle Mode Dropdown ---
+        function toggleModeDropdown() {
+            const dropdown = document.getElementById('markupDropdown');
+            const versionPopup = document.getElementById('versionHistoryPanel');
+            // Close other popups
+            versionPopup.classList.remove('show');
+            dropdown.classList.toggle('show');
+        }
+
+        // --- NEW: Set Mode Logic ---
+        function setMode(mode) {
+            const modeLabel = document.getElementById('modeLabel');
+            const currentModeIcon = document.getElementById('currentModeIcon');
+            const contractContent = document.getElementById('contract-content');
+            const body = document.body;
+
+            // Remove all mode classes
+            body.classList.remove('read-mode', 'edit-mode', 'markup-mode');
+
+            if (mode === 'markup') {
+                modeLabel.textContent = 'Markup Mode';
+                currentModeIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>';
+                contractContent.contentEditable = 'false';
+                body.classList.add('markup-mode');
+            } else if (mode === 'read') {
+                modeLabel.textContent = 'Read Mode';
+                currentModeIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                contractContent.contentEditable = 'false';
+                body.classList.add('read-mode');
+            } else if (mode === 'edit') {
+                modeLabel.textContent = 'Edit Mode';
+                currentModeIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+                contractContent.contentEditable = 'true';
+                body.classList.add('edit-mode');
+            }
+            document.getElementById('markupDropdown').classList.remove('show');
+        }
+
+        function scrollToCard(id) {
+            const cards = {1: 1, 2: 2, 3: 3};
+            const cardNum = cards[id] || 1;
+            const card = document.getElementById(`card-${cardNum}`);
+            if (card) {
+                card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                card.classList.add('editing-highlight');
+                setTimeout(() => { card.classList.remove('editing-highlight'); }, 1500);
+            }
+        }
+
+        function applySuggestion(id) {
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                // Get the text to apply
+                const aiRecText = document.getElementById(`ai-rec-text-${id}`).textContent;
+                
+                // Update the contract content in middle UI
+                const docChange = document.getElementById(`doc-change-${id}`);
+                if (docChange) {
+                    docChange.textContent = aiRecText;
+                    docChange.classList.remove('review-needed');
+                    docChange.classList.add('ai-accepted');
+                }
+                
+                // Mark card as resolved
+                card.classList.add('card-resolved');
+                
+                // Update counters
+                updateCounters('accept');
+                
+                showToast("AI Change Accepted", "success");
+            }
+        }
+
+        function declineSuggestion(id) {
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                card.classList.add('card-resolved');
+                updateCounters('reject');
+                showToast("AI Change Declined", "error");
+            }
+        }
+
+        function updateCounters(action) {
+            const pendingEl = document.getElementById('cnt-pending');
+            const acceptedEl = document.getElementById('cnt-accepted');
+            const rejectedEl = document.getElementById('cnt-rejected');
+            
+            if (!pendingEl) return;
+            
+            let pending = parseInt(pendingEl.textContent);
+            let accepted = parseInt(acceptedEl.textContent);
+            let rejected = parseInt(rejectedEl.textContent);
+            
+            if (action === 'accept') {
+                pending = Math.max(0, pending - 1);
+                accepted++;
+            } else if (action === 'reject') {
+                pending = Math.max(0, pending - 1);
+                rejected++;
+            }
+            
+            pendingEl.textContent = pending;
+            acceptedEl.textContent = accepted;
+            rejectedEl.textContent = rejected;
+        }
+
+        function switchAITab(tab) {
+            const redline = document.getElementById('redlineContent');
+            const assistant = document.getElementById('assistantContent');
+            const redlineTab = document.getElementById('redlineTab');
+            const assistantTab = document.getElementById('assistantTab');
+            const status = document.getElementById('status-container');
+
+            if (tab === 'redline') {
+                redline.classList.remove('hidden');
+                assistant.classList.add('hidden');
+                status.classList.remove('hidden');
+                redlineTab.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+                redlineTab.classList.remove('text-gray-500');
+                assistantTab.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+                assistantTab.classList.add('text-gray-500');
+            } else {
+                redline.classList.add('hidden');
+                assistant.classList.remove('hidden');
+                status.classList.add('hidden');
+                assistantTab.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+                assistantTab.classList.remove('text-gray-500');
+                redlineTab.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+                redlineTab.classList.add('text-gray-500');
+            }
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toast-notification');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-message');
+            msg.textContent = message;
+            
+            if (type === 'error') {
+                icon.className = 'bg-red-500 rounded-full p-1';
+                icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>';
+            } else {
+                icon.className = 'bg-green-500 rounded-full p-1';
+                icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+            }
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        // SIDEBAR TOGGLE FUNCTION
+        function toggleSidebarNav() {
+            const sidebar = document.getElementById('leftSidebarNav');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mainGrid = document.getElementById('main-grid');
+            const body = document.body;
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+            mainGrid.classList.toggle('sidebar-open');
+        }
+
+        // AI Card Interactions
+        function applyOriginal(cardId) {
+            const originalBox = document.getElementById(`original-${cardId}`);
+            if (originalBox) {
+                const isBold = originalBox.classList.contains('border-black');
+                if (isBold) {
+                    originalBox.classList.remove('border-black', 'border-2');
+                    originalBox.classList.add('border-red-200', 'border-2');
+                } else {
+                    originalBox.classList.remove('border-red-200');
+                    originalBox.classList.add('border-black');
+                }
+                
+                // Scroll to contract section
+                scrollToContractSection(cardId);
+            }
+        }
+
+        function scrollToContractSection(cardId) {
+            const wrapperMap = {2: 'doc-wrapper-2', 3: 'doc-wrapper-3', 4: 'doc-wrapper-4'};
+            const wrapperId = wrapperMap[cardId];
+            if (wrapperId) {
+                const element = document.getElementById(wrapperId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Remove previous background
+                    document.querySelectorAll('[id^="doc-wrapper-"]').forEach(el => {
+                        el.classList.remove('bg-yellow-50');
+                    });
+                    // Add yellow background
+                    element.classList.add('bg-yellow-50');
+                    // Remove after 3 seconds
+                    setTimeout(() => { 
+                        element.classList.remove('bg-yellow-50');
+                    }, 3000);
+                }
+            }
+        }
+
+        function editAIRecommendation(cardId) {
+            const textDiv = document.getElementById(`ai-rec-text-${cardId}`);
+            const editDiv = document.getElementById(`ai-rec-edit-${cardId}`);
+            textDiv.classList.add('hidden');
+            editDiv.classList.remove('hidden');
+        }
+
+        function cancelEditAI(cardId) {
+            const textDiv = document.getElementById(`ai-rec-text-${cardId}`);
+            const editDiv = document.getElementById(`ai-rec-edit-${cardId}`);
+            textDiv.classList.remove('hidden');
+            editDiv.classList.add('hidden');
+        }
+
+        function saveEditAI(cardId) {
+            const input = document.getElementById(`ai-rec-input-${cardId}`);
+            const textDiv = document.getElementById(`ai-rec-text-${cardId}`);
+            textDiv.textContent = input.value;
+            textDiv.classList.remove('hidden');
+            document.getElementById(`ai-rec-edit-${cardId}`).classList.add('hidden');
+            showToast("AI recommendation updated", "success");
+        }
+
+        function undoAI(cardId) {
+            alert('Undo feature coming soon!');
+        }
+
+        function redoAI(cardId) {
+            alert('Redo feature coming soon!');
+        }
+
+        function toggleReasoning(cardId) {
+            const content = document.getElementById(`reasoning-content-${cardId}`);
+            const arrow = document.getElementById(`reasoning-arrow-${cardId}`);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('hidden');
+                arrow.textContent = '▶';
+            }
+        }
+        
+        // Close dropdowns when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.closest('.relative') && !event.target.closest('#versionHistoryPanel')) {
+                document.getElementById('markupDropdown').classList.remove('show');
+                document.getElementById('versionHistoryPanel').classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
